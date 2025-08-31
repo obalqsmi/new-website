@@ -1,0 +1,430 @@
+<section id="ysa-featured-{{ section.id }}">
+  <!-- Google Fonts (match hero exactly) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== ROOT: reuse hero tokens exactly ===== */
+    #ysa-featured-{{ section.id }}{
+      --bg-900:#050816; --bg-800:#091025;
+      --cyber-500:#12b4ff; --cyber-400:#4fdcff; --cyber-300:#86f2ff;
+      --text-100:#e8f6ff; --text-300:#b0c8e8;
+      --h1: clamp(40px, 7vw, 108px);
+      --sub: clamp(16px, 2vw, 24px);
+      --btn: clamp(14px, 1.2vw, 16px);
+      position:relative;
+      width:100%;
+      color:var(--text-100);
+      background:
+        radial-gradient(1200px 600px at 70% 10%, rgba(0,229,255,.18), transparent 60%),
+        radial-gradient(900px 420px at 20% 80%, rgba(75,107,255,.16), transparent 60%),
+        linear-gradient(180deg, var(--bg-800) 0%, var(--bg-900) 100%);
+      isolation:isolate;
+      overflow:hidden;
+      padding: clamp(36px, 6vh, 72px) 0;
+      font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    }
+    /* faint grid overlay (exact like hero) */
+    #ysa-featured-{{ section.id }}::before{
+      content:""; position:absolute; inset:-10%; opacity:.15; z-index:-2;
+      background:
+        linear-gradient(transparent 96%, rgba(79,220,255,.2) 96%) 0 0/100% 30px,
+        linear-gradient(90deg, transparent 96%, rgba(79,220,255,.2) 96%) 0 0/30px 100%;
+    }
+
+    /* ===== MATRIX RAIN CANVAS (same look as hero) ===== */
+    #ysa-featured-{{ section.id }} canvas{
+      position:absolute; inset:0; width:100%; height:100%;
+      z-index:-1; filter: drop-shadow(0 0 6px rgba(79,220,255,.35));
+    }
+
+    /* ===== layout ===== */
+    #ysa-featured-{{ section.id }} .container{
+      width:min(1280px, 94vw);
+      margin:0 auto;
+    }
+
+    /* header */
+    #ysa-featured-{{ section.id }} .head{
+      display:grid; grid-template-columns: 1fr auto; align-items:center; gap:12px;
+      margin-bottom: clamp(18px, 3vh, 28px);
+    }
+    #ysa-featured-{{ section.id }} .title{
+      grid-column: 1 / -1;
+      margin:0; text-align:center;
+      font-family:"Orbitron",system-ui,sans-serif; font-weight:800;
+      font-size: clamp(24px, 3.2vw, 40px); letter-spacing:.4px;
+      background: conic-gradient(from 210deg,#bff5ff 0%, #76e6ff 25%, var(--cyber-500) 55%, #7dd6ff 80%, #d9fbff 100%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow: 0 0 24px rgba(18,180,255,.28);
+    }
+    #ysa-featured-{{ section.id }} .right{
+      grid-column: 1 / -1; display:flex; justify-content:flex-end;
+    }
+    #ysa-featured-{{ section.id }} .view-all{
+      display:inline-flex; align-items:center; gap:8px;
+      color:var(--cyber-300); text-decoration:none; font-weight:700;
+      padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(134,242,255,.25);
+      background: linear-gradient(180deg, rgba(6,16,34,.65), rgba(6,12,25,.45));
+      box-shadow: inset 0 0 12px rgba(79,220,255,.10);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+    }
+    #ysa-featured-{{ section.id }} .view-all:hover{
+      transform: translateY(-3px);
+      border-color: rgba(134,242,255,.6);
+      color:#fff; text-shadow:0 0 16px rgba(79,220,255,.55);
+      box-shadow: 0 12px 28px rgba(18,180,255,.22), inset 0 0 16px rgba(79,220,255,.16);
+    }
+
+    /* grid 3 -> 1 */
+    #ysa-featured-{{ section.id }} .grid{
+      display:grid; gap: clamp(14px, 2vw, 24px);
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px){
+      #ysa-featured-{{ section.id }} .grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* card */
+    #ysa-featured-{{ section.id }} .card{
+      height:100%; display:flex; flex-direction:column; overflow:hidden;
+      border-radius:16px;
+      border:1px solid rgba(112,226,255,.20);
+      background: linear-gradient(180deg, rgba(10,18,40,.55), rgba(7,12,26,.35));
+      box-shadow: 0 12px 32px rgba(0,0,0,.35), inset 0 0 60px rgba(79,220,255,.06);
+      backdrop-filter: blur(10px) saturate(115%);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    #ysa-featured-{{ section.id }} .card:hover{
+      transform: translateY(-6px);
+      border-color: rgba(134,242,255,.55);
+      box-shadow: 0 18px 44px rgba(18,180,255,.28), inset 0 0 80px rgba(79,220,255,.10);
+    }
+
+    /* media with "Tuned" badge */
+    #ysa-featured-{{ section.id }} .media{
+      position:relative; aspect-ratio:16/9; overflow:hidden; background:#0e152c;
+    }
+    #ysa-featured-{{ section.id }} .media img{
+      width:100%; height:100%; object-fit:cover; transition: transform .5s ease;
+    }
+    #ysa-featured-{{ section.id }} .card:hover .media img{ transform: scale(1.05); }
+    #ysa-featured-{{ section.id }} .tuned{
+      position:absolute; top:10px; left:10px; z-index:1;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; font-size:12px; font-weight:800;
+      background: rgba(6,16,34,.75);
+      border:1px solid rgba(134,242,255,.35);
+      box-shadow: inset 0 0 12px rgba(79,220,255,.12);
+      color:#a6dfff;
+    }
+    #ysa-featured-{{ section.id }} .tuned svg{ width:14px; height:14px; fill:#36d3ff }
+
+    /* body */
+    #ysa-featured-{{ section.id }} .body{
+      padding: clamp(14px, 1.8vw, 20px);
+      display:flex; flex-direction:column; gap:10px; flex:1;
+    }
+    #ysa-featured-{{ section.id }} .prod-title{
+      margin:0; font-family:"Orbitron",system-ui,sans-serif; font-weight:800;
+      font-size: clamp(16px, 1.4vw, 20px); line-height:1.2;
+    }
+    #ysa-featured-{{ section.id }} .desc{ color:var(--text-300); font-size:14px; }
+
+    /* fixed icon badges under title */
+    #ysa-featured-{{ section.id }} .quick-badges{ display:flex; flex-wrap:wrap; gap:8px; }
+    #ysa-featured-{{ section.id }} .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap;
+      border:1px solid rgba(134,242,255,.25);
+      box-shadow: inset 0 0 12px rgba(79,220,255,.10);
+    }
+    #ysa-featured-{{ section.id }} .pill svg{ width:14px; height:14px; }
+    .pill--undetected{ background:#0a2318; color:#9effc8; }
+    .pill--premium{ background:#0a162a; color:#cfe1ff; }
+    .pill--off{
+      color:#001018;
+      background: radial-gradient(120% 120% at 30% 30%, var(--cyber-300), var(--cyber-500));
+      border-color: rgba(134,242,255,.45);
+      box-shadow: 0 4px 16px rgba(18,180,255,.35), inset 0 0 10px rgba(255,255,255,.18);
+    }
+
+    /* rating row (match hero stars) */
+    #ysa-featured-{{ section.id }} .rating{
+      display:flex; align-items:center; gap:8px; color:var(--text-300); font-size:13px;
+      filter: drop-shadow(0 0 8px rgba(18,180,255,.45));
+    }
+    #ysa-featured-{{ section.id }} .stars{ display:inline-flex; gap:4px; }
+    #ysa-featured-{{ section.id }} .stars svg{ width:16px; height:16px; }
+
+    /* price and divider/cta row */
+    #ysa-featured-{{ section.id }} .price-row{
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-top:6px;
+    }
+    #ysa-featured-{{ section.id }} .from{ color:var(--text-300); font-weight:700; margin-right:4px; }
+    #ysa-featured-{{ section.id }} .price{ font-weight:800; font-size:18px; color:#fff; text-shadow:0 0 14px rgba(79,220,255,.25); }
+    #ysa-featured-{{ section.id }} .compare{ color:var(--text-300); text-decoration:line-through; font-size:14px; opacity:.85; }
+
+    #ysa-featured-{{ section.id }} .hr{
+      height:1px; width:100%; background:rgba(255,255,255,.08);
+      margin: 12px 0 8px 0;
+    }
+    #ysa-featured-{{ section.id }} .bottom-row{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    #ysa-featured-{{ section.id }} .ptype{ color:var(--text-300); font-size:12px; }
+
+    /* Primary button (exact hero style) */
+    #ysa-featured-{{ section.id }} .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 16px; border-radius:14px; font-weight:800; cursor:pointer;
+      border:1px solid rgba(134,242,255,.35);
+      background: radial-gradient(120% 120% at 30% 30%, #4fdcff, #12b4ff);
+      color:#001018; text-decoration:none; font-size:var(--btn);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease, background .18s ease;
+      box-shadow: 0 8px 22px rgba(18,180,255,.32), inset 0 0 14px rgba(255,255,255,.18);
+    }
+    #ysa-featured-{{ section.id }} .btn:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(18,180,255,.52), inset 0 0 18px rgba(255,255,255,.24);
+    }
+  </style>
+
+  <!-- Matrix rain canvas (same color/feel as hero) -->
+  <canvas id="ysa-featured-matrix-{{ section.id }}"></canvas>
+
+  <div class="container">
+    <div class="head">
+      <h2 class="title">{{ section.settings.heading | default: 'Featured Products' }}</h2>
+      {% if section.settings.view_all_link != blank %}
+        <div class="right">
+          <a class="view-all" href="{{ section.settings.view_all_link | escape }}">{{ section.settings.view_all_label | default: 'View all products' }}</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="grid" role="list" aria-label="Featured products">
+      {% for block in section.blocks %}
+        {%- liquid
+          assign ref = block.settings.product
+          if ref and ref.id
+            assign p = ref
+          else
+            assign p = all_products[block.settings.product]
+          endif
+        -%}
+
+        <article class="card" role="listitem" {{ block.shopify_attributes }}>
+          {% if p %}
+            <a class="media" href="{{ p.url }}" aria-label="{{ p.title | escape }}">
+              <span class="tuned" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4" /></svg> Tuned
+              </span>
+              {% if p.featured_image %}
+                <img
+                  src="{{ p.featured_image | img_url: '1000x' }}"
+                  alt="{{ p.featured_image.alt | default: p.title | escape }}"
+                  loading="lazy"
+                  width="{{ p.featured_image.width }}" height="{{ p.featured_image.height }}">
+              {% else %}
+                <div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--text-300);font-size:14px;">No image</div>
+              {% endif %}
+            </a>
+
+            <div class="body">
+              <h3 class="prod-title"><a href="{{ p.url }}" style="color:inherit;text-decoration:none">{{ p.title }}</a></h3>
+
+              <!-- fixed icon badges under title -->
+              <div class="quick-badges">
+                <span class="pill pill--undetected">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 4a8 8 0 1 0 8 8 8.01 8.01 0 0 0-8-8Zm0 12a4 4 0 1 1 4-4 4.004 4.004 0 0 1-4 4Z"/></svg>
+                  Undetected
+                </span>
+                <span class="pill pill--premium">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l3 6 6 .9-4.5 4.3L18 20l-6-3.2L6 20l1.5-6.8L3 8.9 9 8z"/></svg>
+                  Premium
+                </span>
+                {%- assign pct = 0 -%}
+                {%- if p.compare_at_price_max > p.price -%}
+                  {%- assign pct = p.compare_at_price_max | minus: p.price | times: 100.0 | divided_by: p.compare_at_price_max | round -%}
+                {%- endif -%}
+                <span class="pill pill--off">
+                  <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 12h18M12 3v18"/></svg>
+                  {% if pct > 0 %}{{ pct }}% OFF{% else %}15% OFF{% endif %}
+                </span>
+              </div>
+
+              {%- assign short_desc = p.metafields.custom.short_description -%}
+              {%- if short_desc == blank -%}
+                {%- assign short_desc = p.description | strip_html | truncate: 140 -%}
+              {%- endif -%}
+              <div class="desc">{{ short_desc }}</div>
+
+              <!-- rating (optional, pulls from metafields.reviews) -->
+              {%- assign rating_value = p.metafields.reviews.rating | default: p.metafields.reviews.rating_value -%}
+              {%- assign rating_count = p.metafields.reviews.count | default: p.metafields.reviews.rating_count -%}
+              {% if rating_value %}
+                <div class="rating" aria-label="Rated {{ rating_value }} out of 5{% if rating_count %} based on {{ rating_count }} reviews{% endif %}">
+                  <span class="stars" aria-hidden="true">
+                    {%- assign r = rating_value | plus: 0 -%}
+                    {%- for i in (1..5) -%}
+                      {% if r >= i %}
+                        <svg viewBox="0 0 24 24"><defs><linearGradient id="g-{{ section.id }}-{{ block.id }}-{{ forloop.index }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#86f2ff"/><stop offset="50%" stop-color="#4fdcff"/><stop offset="100%" stop-color="#12b4ff"/></linearGradient></defs><path fill="url(#g-{{ section.id }}-{{ block.id }}-{{ forloop.index }})" d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.56 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>
+                      {% elsif r > i-1 %}
+                        <svg viewBox="0 0 24 24"><defs><linearGradient id="h-{{ section.id }}-{{ block.id }}-{{ forloop.index }}" x1="0" y1="0" x2="1" y2="0"><stop offset="50%" stop-color="#4fdcff"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path fill="url(#h-{{ section.id }}-{{ block.id }}-{{ forloop.index }})" d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.56 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/><path fill="rgba(255,255,255,0.12)" d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.56 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>
+                      {% else %}
+                        <svg viewBox="0 0 24 24"><path fill="rgba(255,255,255,0.12)" d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.56 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z"/></svg>
+                      {% endif %}
+                    {%- endfor -%}
+                  </span>
+                  <strong style="color:#fff">{{ rating_value }}</strong>
+                  {% if rating_count %}<span>based on <strong style="color:var(--cyber-300)">{{ rating_count }}</strong></span>{% endif %}
+                </div>
+              {% endif %}
+
+              <!-- price -->
+              <div class="price-row">
+                {% if p.variants.size > 1 %}<span class="from">From</span>{% endif %}
+                <div class="price">{{ p.price | money }}</div>
+                {% if p.compare_at_price_max > p.price %}
+                  <div class="compare">{{ p.compare_at_price_max | money }}</div>
+                {% endif %}
+              </div>
+
+              <div class="hr" aria-hidden="true"></div>
+
+              <div class="bottom-row">
+                <div class="ptype">{% if p.type != blank %}{{ p.type }}{% endif %}</div>
+                <a class="btn" href="{{ p.url }}" aria-label="Buy {{ p.title | escape }}">Buy Now</a>
+              </div>
+            </div>
+          {% else %}
+            <!-- placeholder when no product chosen -->
+            <div class="media" aria-hidden="true" style="display:grid;place-items:center;color:var(--text-300);">
+              <span class="tuned"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4" /></svg> Tuned</span>
+              <span style="opacity:.8">Select a product</span>
+            </div>
+            <div class="body">
+              <h3 class="prod-title">Product title</h3>
+              <div class="quick-badges">
+                <span class="pill pill--undetected"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8A8.01 8.01 0 0 0 12 4Z"/></svg>Undetected</span>
+                <span class="pill pill--premium"><svg viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.3L18 20l-6-3-6 3 1.5-6.7L3 9l6-1z"/></svg>Premium</span>
+                <span class="pill pill--off"><svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18"/></svg>15% OFF</span>
+              </div>
+              <div class="desc">{{ block.settings.fallback_description }}</div>
+              <div class="price-row"><div class="price">$0.00</div></div>
+              <div class="hr"></div>
+              <div class="bottom-row">
+                <div class="ptype"></div>
+                <span class="btn" style="pointer-events:none;opacity:.6">Buy Now</span>
+              </div>
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+
+      {% for i in (section.blocks.size..2) %}
+        <article class="card" role="listitem" aria-label="Empty product slot">
+          <div class="media" aria-hidden="true" style="display:grid;place-items:center;color:var(--text-300);">
+            <span class="tuned"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4" /></svg> Tuned</span>
+            <span style="opacity:.8">Add a product</span>
+          </div>
+          <div class="body">
+            <h3 class="prod-title">Product title</h3>
+            <div class="quick-badges">
+              <span class="pill pill--undetected"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8A8.01 8.01 0 0 0 12 4Z"/></svg>Undetected</span>
+              <span class="pill pill--premium"><svg viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.3L18 20l-6-3-6 3 1.5-6.7L3 9l6-1z"/></svg>Premium</span>
+              <span class="pill pill--off"><svg viewBox="0 0 24 24"><path d="M3 12h18M12 3v18"/></svg>15% OFF</span>
+            </div>
+            <div class="desc"></div>
+            <div class="price-row"><div class="price">$0.00</div></div>
+            <div class="hr"></div>
+            <div class="bottom-row">
+              <div class="ptype"></div>
+              <span class="btn" style="pointer-events:none;opacity:.6">Buy Now</span>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Matrix rain (spacing preserved, moderate speed to match hero) -->
+  <script>
+    (function(){
+      const canvas = document.getElementById('ysa-featured-matrix-{{ section.id }}');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w, h, fontSize, columns, drops;
+      let lastTime = 0;
+      const speedFactor = 0.30; // keep same vibe as hero
+
+      function resize(){
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        w = canvas.clientWidth; h = canvas.clientHeight;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        fontSize = Math.max(12, Math.floor(w / 90));
+        columns = Math.ceil(w / fontSize);
+        drops = Array.from({length: columns}, () => Math.floor(Math.random()*h/fontSize));
+        ctx.font = fontSize + "px Orbitron, monospace";
+      }
+
+      function draw(timestamp){
+        const interval = 1000 * (1 - speedFactor);
+        if (timestamp - lastTime > interval) {
+          ctx.fillStyle = "rgba(5, 8, 22, 0.18)";
+          ctx.fillRect(0,0,w,h);
+
+          for(let i=0;i<columns;i++){
+            const char = Math.random() > 0.5 ? '1' : '0';
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            ctx.fillStyle = "rgba(79, 220, 255, 0.9)";
+            ctx.fillText(char, x, y);
+
+            if(y > h && Math.random() > 0.975){ drops[i] = 0; }
+            drops[i] += 1; // keep row spacing clean
+          }
+          lastTime = timestamp;
+        }
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      requestAnimationFrame(draw);
+      window.addEventListener('resize', resize);
+      document.addEventListener('shopify:section:load', resize);
+      document.addEventListener('shopify:section:select', resize);
+    })();
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "YSA Featured",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Featured Products" },
+    { "type": "text", "id": "view_all_label", "label": "View-all label", "default": "View all products" },
+    { "type": "url", "id": "view_all_link", "label": "View-all link" }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Featured product",
+      "limit": 3,
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "text", "id": "fallback_description", "label": "Fallback description" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "YSA Featured" }
+  ]
+}
+{% endschema %}

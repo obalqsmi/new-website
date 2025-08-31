@@ -1,0 +1,795 @@
+{%- liquid
+  assign menu = section.settings.menu
+  assign layout = section.settings.layout
+  assign icon = section.settings.icon
+  assign search_type = section.settings.search_type
+  assign search_type_mobile = section.settings.search_type_mobile
+  assign enable_logo_link = section.settings.enable_logo_link
+  assign logo_default = section.settings.logo_default
+  assign logo_inverted = section.settings.logo_inverted
+  assign logo_mobile = section.settings.logo_mobile
+  assign logo_mobile_inverted = section.settings.logo_mobile_inverted
+  assign logo_width_desktop = section.settings.logo_width_desktop
+  assign logo_width_mobile = section.settings.logo_width_mobile
+  assign color_scheme = section.settings.color_scheme
+
+  assign layout_modifier = ''
+
+  case layout
+    when 'logo-left-navigation-left'
+      assign layout_modifier = 'left'
+
+    when 'logo-left-navigation-center'
+      assign layout_modifier = 'center'
+
+    when 'logo-center-navigation-left'
+      assign layout_modifier = 'center-logo'
+
+    when 'logo-center-navigation-drawer'
+      assign layout_modifier = 'hidden'
+  endcase
+-%}
+
+<style>
+  .header[data-section-id='{{ section.id }}'] .header__logo {
+      max-width: {{ logo_width_desktop }}px;
+  }
+
+  .header[data-section-id='{{ section.id }}'] .header__logo.header__logo--mobile {
+      max-width: {{ logo_width_mobile }}px;
+  }
+</style>
+
+<div
+  class="header header--{{ layout_modifier }} color-{{ color_scheme }} color-text"
+  data-section-type="header"
+  data-section-force-loading
+  data-section-id="{{ section.id }}"
+>
+  <header class="header__wrapper" role="banner">
+    <div class="container">
+      <div class="row h-100 align-items-center flex-nowrap">
+        <!-- left icons -->
+
+        {% capture search_icon_mobile %}
+          {%- if settings.enable_search and search_type_mobile == 'minimal' -%}
+            <li class="header-menu__item d-inline-block d-md-none">
+              <a href="/search" class="header-menu__link header-menu__link--icon js-drawer-open-button-top" aria-controls="SearchDrawer" aria-label="{{ 'general.search.title' | t }}" title="{{ 'general.search.title' | t }}">
+                <span class="{{ settings.icon }} after-icon" translate="no" data-icon="search" aria-hidden="true"></span>
+              </a>
+            </li>
+          {%- endif -%}
+        {% endcapture %}
+
+        <div class="flex-fill text-whitespace-nowrap header__left-icons-wrapper{% unless layout == 'logo-center-navigation-drawer' %} d-lg-none{% endunless %}">
+          <ul class="header-menu">
+            <li class="header-menu__item">
+              <a
+                href="#"
+                class="header-menu__link header-menu__link--icon js-drawer-open-button-left"
+                aria-controls="NavDrawer"
+                aria-label="{{ 'general.drawers.navigation' | t }}"
+                title="{{ 'general.drawers.navigation' | t }}"
+              >
+                <span class="{{ settings.icon }} after-icon" translate="no" data-icon="menu" aria-hidden="true"></span>
+              </a>
+            </li>
+
+            {%- if settings.enable_search and search_type == 'drawer' -%}
+              <li class="d-none d-md-inline-block header-menu__item">
+                <a
+                  href="/search"
+                  class="header-menu__link header-menu__link--icon js-drawer-open-button-top"
+                  aria-controls="SearchDrawer"
+                  aria-label="{{ 'general.search.title' | t }}"
+                  title="{{ 'general.search.title' | t }}"
+                >
+                  <span
+                    class="{{ settings.icon }} after-icon"
+                    translate="no"
+                    data-icon="search"
+                    aria-hidden="true"
+                  ></span>
+                </a>
+              </li>
+            {%- endif -%}
+
+            {{ search_icon_mobile }}
+          </ul>
+        </div>
+
+        <!-- Logo -->
+        {%- capture logo_content -%}
+          {%- liquid
+            if enable_logo_link
+              assign logo_link = routes.root_url
+            else
+              assign logo_link = '#'
+            endif
+          -%}
+
+          <a href="{{ logo_link }}" itemprop="url" class="header__logo-link h-100 d-flex align-items-center">
+            <meta itemprop="name" content="{{ shop.name }}">
+
+            <!-- default logo -->
+            {%- if logo_default != blank -%}
+              {%- assign logo_default_width = logo_width_desktop | times: 2 -%}
+              {%- capture sizes -%}{{ logo_default_width }}px{% endcapture %}
+
+              {{- logo_default | image_url: width: logo_default.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', itemprop: 'logo', alt: shop.name, class: 'header__logo header__logo--default' -}}
+            {%- else -%}
+              <span class="header__logo header__logo--default text-ellipsis">{{ shop.name }}</span>
+            {%- endif -%}
+
+            <!-- inverted logo -->
+            {%- if logo_inverted != blank or logo_default != blank -%}
+              {%- capture sizes -%}{{ logo_width_desktop | times: 2 }}px{% endcapture %}
+
+              {%- if logo_inverted != blank -%}
+                {{- logo_inverted | image_url: width: logo_inverted.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', alt: shop.name, class: 'header__logo header__logo--inverted' -}}
+              {%- else -%}
+                {{- logo_default | image_url: width: logo_default.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', alt: shop.name, class: 'header__logo header__logo--inverted' -}}
+              {%- endif -%}
+            {%- else -%}
+              <span class="header__logo header__logo--inverted text-ellipsis">{{ shop.name }}</span>
+            {%- endif -%}
+
+            <!-- mobile logo -->
+            {%- if logo_mobile != blank -%}
+              {%- capture sizes -%}{{ logo_width_mobile | times: 2 }}px{% endcapture %}
+
+              {{- logo_mobile | image_url: width: logo_mobile.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', alt: shop.name, class: 'header__logo header__logo--mobile' -}}
+            {%- else -%}
+              <span class="header__logo header__logo--mobile text-ellipsis">{{ shop.name }}</span>
+            {%- endif -%}
+
+            <!-- mobile inverted logo -->
+            {%- if logo_mobile_inverted != blank or logo_mobile != blank -%}
+              {%- capture sizes -%}{{ logo_width_mobile | times: 2 }}px{% endcapture %}
+
+              {%- if logo_mobile_inverted != blank -%}
+                {{- logo_mobile_inverted | image_url: width: logo_mobile_inverted.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', alt: shop.name, class: 'header__logo header__logo--mobile header__logo--inverted' -}}
+              {%- else -%}
+                {{- logo_mobile | image_url: width: logo_mobile.width | image_tag: loading: 'eager', sizes: sizes, widths: '75,100,125,150,175,200,250,300', alt: shop.name, class: 'header__logo header__logo--mobile header__logo--inverted' -}}
+              {%- endif -%}
+            {%- else -%}
+              <span class="header__logo header__logo--mobile header__logo--inverted text-ellipsis">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+        {%- endcapture -%}
+
+        <div class="{% if layout == 'logo-left-navigation-center' %}flex-lg-fill col-lg-12 {% endif %}col-auto nav-containers nav-container-logo header__logo-wrapper">
+          <div class="header__menu-container">
+            {% if request.page_type == 'index' %}
+              <h1 class="header__logo-container" itemscope itemtype="http://schema.org/Organization">
+                {{ logo_content }}
+            {%- else -%}
+              <div class="header__logo-container" itemscope itemtype="http://schema.org/Organization">
+                {{ logo_content }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+
+        <!-- Navigation menu -->
+        <div class="{% if layout == 'logo-left-navigation-center' %}col-lg-6 {% else %}flex-lg-fill {% endif %}{% unless layout == 'logo-center-navigation-drawer' %}d-lg-flex align-items-center {% endunless %}d-none nav-containers header__menu-wrapper">
+          {%- unless layout == 'logo-left-navigation-below' -%}
+            <ul class="header__menu-container header-menu headerMenuMega">
+              {%- for link in linklists[menu].links -%}
+                {%- if link.links != blank -%}
+                  {%- assign parent_index = forloop.index -%}
+
+                  <li class="dropdown header-menu__item">
+                    <a
+                      id="MenuParentToggle-{{ parent_index }}"
+                      href="{{ link.url }}"
+                      class="dropdown__toggle header-menu__link"
+                      aria-controls="MenuParent-{{ parent_index }}"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      {% unless request.page_type == 'index' %}
+                        {%- if link.active %}aria-current="page"{% endif -%}
+                      {% endunless %}
+                    >
+                      {{ link.title | escape }}
+                      <span
+                        class="{{ settings.icon }} after-icon"
+                        translate="no"
+                        data-icon="keyboard_arrow_down"
+                        aria-hidden="true"
+                      ></span>
+                    </a>
+
+                    <ul
+                      id="MenuParent-{{ parent_index }}"
+                      class="dropdown__menu"
+                      aria-labelledby="MenuParentToggle-{{ parent_index }}"
+                    >
+                      {%- for childlink in link.links -%}
+                        {%- if childlink.links != blank -%}
+                          {%- assign child_index = forloop.index -%}
+
+                          <!-- 2 level dropdown -->
+                          <li class="dropdown dropdown__item dropdown__item--has-grandchild">
+                            <a
+                              id="MenuChildrenToggle-{{ parent_index }}-{{ child_index }}"
+                              href="{{ childlink.url }}"
+                              class="dropdown__link dropdown__toggle{% if childlink.active %} dropdown__link--active{% endif %}"
+                              aria-controls="MenuChildren-{{ parent_index }}-{{ child_index }}"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              {% unless request.page_type == 'index' %}
+                                {%- if childlink.active %}aria-current="page"{% endif -%}
+                              {% endunless %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+
+                            <ul
+                              id="MenuChildren-{{ parent_index }}-{{ child_index }}"
+                              class="dropdown__menu dropdown__menu--grandchild"
+                              aria-labelledby="MenuChildrenToggle-{{ parent_index }}-{{ child_index }}"
+                            >
+                              {%- for grandchildlink in childlink.links -%}
+                                <li class="dropdown__item">
+                                  <a
+                                    href="{{ grandchildlink.url }}"
+                                    class="dropdown__link{% if grandchildlink.active %} dropdown__link--active{% endif %}"
+                                    {% unless request.page_type == 'index' %}
+                                      {%- if grandchildlink.active %}aria-current="page"{% endif -%}
+                                    {% endunless %}
+                                  >
+                                    {{ grandchildlink.title | escape }}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </li>
+                        {%- else -%}
+                          <!-- 1 level dropdown -->
+                          <li class="dropdown__item">
+                            <a
+                              href="{{ childlink.url }}"
+                              class="dropdown__link{% if childlink.active %} dropdown__link--active{% endif %}"
+                              {% if childlink.active %}
+                                aria-current="page"
+                              {% endif %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  </li>
+                {%- else -%}
+                  <!-- only 1 link, no dropdown -->
+                  <li class="header-menu__item">
+                    <a
+                      href="{{ link.url }}"
+                      class="header-menu__link"
+                      {% unless request.page_type == 'index' %}
+                        {%- if link.active %}aria-current="page"{% endif -%}
+                      {% endunless %}
+                    >
+                      {{ link.title | escape }}
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- endunless -%}
+
+          {%- if settings.enable_search and search_type == 'default' -%}
+            {%- if layout == 'logo-left-navigation-left'
+              or layout == 'logo-left-navigation-below'
+              or layout == 'logo-center-navigation-drawer'
+            -%}
+              <div class="flex-lg-fill d-flex align-items-center ms-3">
+                <predictive-search class="d-block w-100">
+                  <form
+                    action="{{ routes.search_url }}"
+                    method="get"
+                    class="search-bar {{ input_type }}"
+                    role="search"
+                    id="MainSearch"
+                  >
+                    <div class="drawer__inner-section">
+                      <div class="row row--sm row-cols-auto align-items-center flex-nowrap">
+                        <div class="flex-fill">
+                          {%- render 'search-bar', search_location: 'drawer', form_tag: false, location: 'header' -%}
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+
+                  {%- render 'dbtfy-smart-search' -%}
+                </predictive-search>
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+
+        <!-- right icons -->
+        <div class="{% if layout == 'logo-left-navigation-left' or layout == 'logo-left-navigation-below' %}col-lg-auto {% else %}flex-lg-fill {% endif %}flex-fill text-whitespace-nowrap text-end nav-containers nav-container-right-icons header__right-icons-wrapper d-flex align-items-center justify-content-end">
+          <ul class="header__menu-container header-menu d-flex align-items-center">
+            {%- if shop.customer_accounts_enabled -%}
+              <li class="header-menu__item {% if search_type == 'default' and layout == 'logo-left-navigation-below' %} d-lg-none{% elsif layout == 'logo-left-navigation-below' %} d-lg-none{% endif %}">
+                <a
+                  href="{{ routes.account_url }}"
+                  class="header-menu__link header-menu__link--icon  d-flex align-items-center"
+                  {% if request.path == routes.account_url %}
+                    aria-current="page"
+                  {% endif %}
+                  title="{%- if customer -%}{{ 'customer.account.title' | t }}{%- else -%}{{ 'layout.customer.log_in' | t }}{%- endif -%}"
+                  aria-label="{%- if customer -%}{{ 'customer.account.title' | t }}{%- else -%}{{ 'layout.customer.log_in' | t }}{%- endif -%}"
+                >
+                  <span class="{{ settings.icon }} icon" translate="no" aria-hidden="true">{{ icon }}</span>
+
+                  <span class="{% if section.settings.enable_login_text != blank %} d-md-inline-block {% else %} d-none {% endif %} text-base   d-none  ">
+                    {%- if customer -%}
+                      {%- assign customer_name = customer.first_name | capitalize -%}
+
+                      {{- 'layout.customer.logged_in' | t: name: customer_name -}}
+                    {%- else -%}
+                      {{- 'layout.customer.log_in' | t -}}
+                    {%- endif -%}
+                  </span>
+                </a>
+              </li>
+            {%- endif -%}
+
+            {%- render 'dbtfy-wish-list', type: 'menu' -%}
+
+            {%- if settings.enable_search and search_type == 'drawer' -%}
+              <li class="header-menu__item d-none{% if layout != 'logo-center-navigation-drawer' %} d-lg-inline-block{% endif %}">
+                <a
+                  href="/search"
+                  class="header-menu__link header-menu__link--icon js-drawer-open-button-top"
+                  aria-controls="SearchDrawer"
+                  aria-label="{{ 'general.search.title' | t }}"
+                  title="{{ 'general.search.title' | t }}"
+                >
+                  <span
+                    class="{{ settings.icon }} after-icon"
+                    translate="no"
+                    data-icon="search"
+                    aria-hidden="true"
+                  ></span>
+                </a>
+              </li>
+            {%- endif -%}
+
+            {%- if settings.show_language_selector or settings.show_country_selector -%}
+              {%- if settings.localization_position == 'header'
+                or settings.localization_position == 'header_and_footer'
+              -%}
+                <li class="header-menu__item">
+                  {%- render 'localization-form',
+                    position: 'header',
+                    toggle_class: 'header-menu__link header-menu__link--icon'
+                  -%}
+                </li>
+              {%- endif -%}
+            {%- endif -%}
+
+            <li class="header-menu__item">
+              <a
+                href="/cart"
+                class="header-menu__link header-menu__link--icon header-menu__link--icon-cart js-drawer-open-button-right js-cart-icon"
+                aria-controls="{%- if settings.cart_type == 'drawer' or settings.cart_type == 'page' -%}CartDrawer{%- else -%}CartModal{%- endif -%}"
+                aria-label="{{ 'layout.cart.title' | t }}"
+                title="{{ 'layout.cart.title' | t }}"
+              >
+                <span class="d-inline-block" aria-hidden="true">
+                  {%- if settings.cart_custom_icon != blank -%}
+                    {{-
+                      settings.cart_custom_icon
+                      | image_url: width: settings.cart_custom_icon.width
+                      | image_tag:
+                        loading: 'lazy',
+                        sizes: '64px',
+                        widths: '32,64',
+                        style: 'width: 100%; max-width: 20px; max-height: 20px; transform: translateY(1px);'
+                    -}}
+                  {%- else -%}
+                    {%- render 'icon', icon: settings.cart_icon -%}
+                  {%- endif -%}
+                </span>
+
+                {%- if settings.show_cart_count -%}
+                  <span class="header__cart-count cart-count">
+                    {%- if cart.item_count <= 99 -%}
+                      {{ cart.item_count }}
+                    {%- else -%}
+                      99+
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {%- if settings.enable_search -%}
+        <div class="d-flex justify-content-between align-items-center">
+          {%- if layout == 'logo-left-navigation-below' -%}
+            <ul class="d-none d-lg-inline-block header__menu-container header-menu mt-3 headerMenuMega">
+              {%- for link in linklists[menu].links -%}
+                {%- if link.links != blank -%}
+                  {%- assign parent_index = forloop.index -%}
+
+                  <li class="dropdown header-menu__item">
+                    <a
+                      id="MenuParentToggle-{{ parent_index }}"
+                      href="{{ link.url }}"
+                      class="dropdown__toggle header-menu__link"
+                      aria-controls="MenuParent-{{ parent_index }}"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      {% unless request.page_type == 'index' %}
+                        {%- if link.active %}aria-current="page"{% endif -%}
+                      {% endunless %}
+                    >
+                      {{ link.title | escape }}
+                      <span
+                        class="{{ settings.icon }} after-icon"
+                        translate="no"
+                        data-icon="keyboard_arrow_down"
+                        aria-hidden="true"
+                      ></span>
+                    </a>
+
+                    <ul
+                      id="MenuParent-{{ parent_index }}"
+                      class="dropdown__menu"
+                      aria-labelledby="MenuParentToggle-{{ parent_index }}"
+                    >
+                      {%- for childlink in link.links -%}
+                        {%- if childlink.links != blank -%}
+                          {%- assign child_index = forloop.index -%}
+
+                          <!-- 2 level dropdown -->
+                          <li class="dropdown dropdown__item dropdown__item--has-grandchild">
+                            <a
+                              id="MenuChildrenToggle-{{ parent_index }}-{{ child_index }}"
+                              href="{{ childlink.url }}"
+                              class="dropdown__link dropdown__toggle{% if childlink.active %} dropdown__link--active{% endif %}"
+                              aria-controls="MenuChildren-{{ parent_index }}-{{ child_index }}"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                              {% unless request.page_type == 'index' %}
+                                {%- if childlink.active %}aria-current="page"{% endif -%}
+                              {% endunless %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+
+                            <ul
+                              id="MenuChildren-{{ parent_index }}-{{ child_index }}"
+                              class="dropdown__menu dropdown__menu--grandchild"
+                              aria-labelledby="MenuChildrenToggle-{{ parent_index }}-{{ child_index }}"
+                            >
+                              {%- for grandchildlink in childlink.links -%}
+                                <li class="dropdown__item">
+                                  <a
+                                    href="{{ grandchildlink.url }}"
+                                    class="dropdown__link{% if grandchildlink.active %} dropdown__link--active{% endif %}"
+                                    {% unless request.page_type == 'index' %}
+                                      {%- if grandchildlink.active %}aria-current="page"{% endif -%}
+                                    {% endunless %}
+                                  >
+                                    {{ grandchildlink.title | escape }}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </li>
+                        {%- else -%}
+                          <!-- 1 level dropdown -->
+                          <li class="dropdown__item">
+                            <a
+                              href="{{ childlink.url }}"
+                              class="dropdown__link{% if childlink.active %} dropdown__link--active{% endif %}"
+                              {% if childlink.active %}
+                                aria-current="page"
+                              {% endif %}
+                            >
+                              {{ childlink.title | escape }}
+                            </a>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  </li>
+                {%- else -%}
+                  <!-- only 1 link, no dropdown -->
+                  <li class="header-menu__item">
+                    <a
+                      href="{{ link.url }}"
+                      class="header-menu__link"
+                      {% unless request.page_type == 'index' %}
+                        {%- if link.active %}aria-current="page"{% endif -%}
+                      {% endunless %}
+                    >
+                      {{ link.title | escape }}
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+
+            <div class="d-none d-lg-inline-block header-menu ms-2">
+              {%- if shop.customer_accounts_enabled -%}
+                <li class="header-menu__item me-1">
+                  <a
+                    href="{{ routes.account_url }}"
+                    class="header-menu__link header-menu__link--icon"
+                    {% if request.path == routes.account_url %}
+                      aria-current="page"
+                    {% endif %}
+                    title="{%- if customer -%}{{ 'customer.account.title' | t }}{%- else -%}{{ 'layout.customer.log_in' | t }}{%- endif -%}"
+                    aria-label="{%- if customer -%}{{ 'customer.account.title' | t }}{%- else -%}{{ 'layout.customer.log_in' | t }}{%- endif -%}"
+                  >
+                    <span
+                      class="{{ settings.icon }} after-icon"
+                      translate="no"
+                      data-icon="person"
+                      aria-hidden="true"
+                    ></span>
+
+                    <span class="text-base d-none d-md-inline-block">
+                      {%- if customer -%}
+                        {%- assign customer_name = customer.first_name | capitalize -%}
+
+                        {{- 'layout.customer.logged_in' | t: name: customer_name -}}
+                      {%- else -%}
+                        {{- 'layout.customer.log_in' | t -}}
+                      {%- endif -%}
+                    </span>
+                  </a>
+                </li>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {% capture search_default_mobile %}
+              <div class="mt-3 w-100 flex-lg-fill d-flex align-items-center {% if search_type_mobile == 'default' %} d-inline-block {% else %} d-none {% endif %} d-md-none">
+                <predictive-search class="d-block w-100">
+                  <form action="{{ routes.search_url }}" method="get" class="search-bar {{ input_type }}" role="search" id="MainSearch">
+                    <div class="drawer__inner-section">
+                      <div class="row row--sm row-cols-auto align-items-center flex-nowrap">
+                        <div class="flex-fill">
+                          {%- render 'search-bar', search_location: 'drawer', form_tag: false, location: 'header' -%}
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+
+                  {%- render 'dbtfy-smart-search' -%}
+                </predictive-search> 
+              </div>
+          {% endcapture %}
+
+          {%- if settings.enable_search -%}
+            {%- if search_type == 'default' -%}
+              <div class="mt-3 w-100 flex-lg-fill {% if layout == 'logo-left-navigation-below' or layout == 'logo-left-navigation-left' %} d-none {% else %} d-none d-md-inline-block {% endif %}">
+                <predictive-search class="d-block w-100">
+                  <form
+                    action="{{ routes.search_url }}"
+                    method="get"
+                    class="search-bar {{ input_type }}"
+                    role="search"
+                    id="MainSearch"
+                  >
+                    <div class="drawer__inner-section">
+                      <div class="row row--sm row-cols-auto align-items-center flex-nowrap">
+                        <div class="flex-fill">
+                          {%- render 'search-bar', search_location: 'drawer', form_tag: false, location: 'header' -%}
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+
+                  {%- render 'dbtfy-smart-search' -%}
+                </predictive-search>
+              </div>
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if settings.enable_search -%}
+            {%- if search_type_mobile == 'default' -%}
+              {{ search_default_mobile }}
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </header>
+
+  {%- render 'dbtfy-menu-bar' -%}
+</div>
+
+{%- render 'drawer-search' -%}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "header-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.addons.help_center.header.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:general.addons.help_center.section_header.content"
+    },
+    {
+      "type": "header",
+      "content": "t:general.addons.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "logo-left-navigation-center",
+      "options": [
+        {
+          "value": "logo-left-navigation-left",
+          "label": "Logo left - navigation left"
+        },
+        {
+          "value": "logo-left-navigation-center",
+          "label": "Logo left - navigation center"
+        },
+        {
+          "value": "logo-left-navigation-below",
+          "label": "Logo left - navigation below"
+        },
+        {
+          "value": "logo-center-navigation-left",
+          "label": "Logo center - navigation left"
+        },
+        {
+          "value": "logo-center-navigation-drawer",
+          "label": "Logo center - navigation drawer"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__1.content"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:sections.header.settings.menu.label",
+      "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "select",
+      "id": "search_type",
+      "label": "Layout",
+      "default": "drawer",
+      "options": [
+        {
+          "value": "drawer",
+          "label": "Minimal"
+        },
+        {
+          "value": "default",
+          "label": "Default"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "search_type_mobile",
+      "label": "Layout (Mobile)",
+      "default": "minimal",
+      "options": [
+        {
+          "value": "minimal",
+          "label": "Minimal"
+        },
+        {
+          "value": "default",
+          "label": "Default"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_logo_link",
+      "label": "t:sections.header.settings.enable_logo_link.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Login Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_login_text",
+      "label": "t:sections.header.settings.enable_login_text.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Login Icon"
+    },
+    {
+      "type": "text",
+      "id": "icon",
+      "label": "t:general.settings.icon.label",
+      "info": "t:general.settings.icon.info",
+      "default": "perm_identity"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_default",
+      "label": "t:sections.header.settings.logo_default.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_inverted",
+      "label": "t:sections.header.settings.logo_inverted.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_mobile",
+      "label": "t:sections.header.settings.logo_mobile.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_mobile_inverted",
+      "label": "Mobile - Inverted"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__3.content",
+      "info": "t:sections.header.settings.header__3.info"
+    },
+    {
+      "type": "range",
+      "id": "logo_width_desktop",
+      "label": "t:sections.header.settings.logo_width_desktop.label",
+      "min": 30,
+      "max": 350,
+      "step": 5,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "label": "t:sections.header.settings.logo_width_mobile.label",
+      "min": 30,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    }
+  ]
+}
+{% endschema %}

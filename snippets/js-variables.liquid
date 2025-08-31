@@ -1,0 +1,792 @@
+{%- liquid
+  assign favicon_url = settings.favicon | image_url: width: 180, height: 180, crop: 'center'
+
+  if settings.favicon == blank
+    assign favicon_url = 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='
+  endif
+-%}
+
+<script>
+  document.documentElement.classList.replace('no-js', 'js');
+
+  window.themeVariables = {
+    files: {
+      vendors: {
+        js: {
+          jquery: {{ 'jquery.min.js' | asset_url | json }},
+          slick: {{ 'slick.min.js' | asset_url | json }},
+          enquire: {{ 'enquire.min.js' | asset_url | json }},
+          vimeoLiteEmbed: {{ 'lite-vimeo-embed.min.js' | asset_url | json }},
+          youtubeLiteEmbed: {{ 'lite-youtube-embed.min.js' | asset_url | json }},
+          ajaxinate: {{ 'ajaxinate.min.js' | asset_url | json }},
+          orderTracking: {{ 'track-order.min.js' | asset_url | json }},
+          flatPickr: {{ 'flatpickr.min.js' | asset_url | json }},
+          instafeed: {{ 'instafeed.min.js' | asset_url | json }},
+          currencies: {{ '/services/javascripts/currencies.js' | json }},
+          vanillaZoom: {{ 'vanilla-zoom.min.js' | asset_url | json }},
+          fancybox: {{ 'fancybox.min.js' | asset_url | json }},
+        },
+        css: {
+          slick: {{ 'slick.min.css' | asset_url | json }},
+          youtubeLiteEmbed: {{ 'lite-youtube-embed.min.css' | asset_url | json }},
+          flatPickr: {{ 'flatpickr.min.css' | asset_url | json }},
+          fancybox: {{ 'fancybox.min.css' | asset_url | json }},
+          modelViewerUiStyles: 'https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css',
+        }
+      },
+      sections: {
+        js: {
+          map: {{ 'section-map.min.js' | asset_url | json }},
+          video: {{ 'section-video.min.js' | asset_url | json }},
+          testimonials: {{ 'section-testimonials.min.js' | asset_url | json }},
+          collectionsList: {{ 'section-collections-list.min.js' | asset_url | json }},
+          featuredCollection: {{ 'section-featured-collection.min.js' | asset_url | json }},
+          product: {{ 'section-product.min.js' | asset_url | json }},
+          collection: {{ 'section-collection.min.js' | asset_url | json }},
+          footer: {{ 'section-footer.min.js' | asset_url | json }},
+          header: {{ 'section-header.min.js' | asset_url | json }},
+          drawerMenu: {{ 'section-drawer-menu.min.js' | asset_url | json }},
+          passwordHeader: {{ 'section-password-header.min.js' | asset_url | json }},
+          productRecommendations: {{ 'section-product-recommendations.min.js' | asset_url | json }},
+        }
+      },
+      components: {
+        js: {
+          slider: {{ 'component-slider.min.js' | asset_url | json }},
+          dropdown: {{ 'component-dropdown.min.js' | asset_url | json }},
+          notificationToast: {{ 'component-notification-toast.min.js' | asset_url | json }},
+          productModel: {{ 'component-product-model.min.js' | asset_url | json }},
+          visibility: {{ 'component-visibility.min.js' | asset_url | json }},
+          cartModal: {{ 'component-cart-modal.min.js' | asset_url | json }},
+          productQuantities: {{ 'component-product-quantities.min.js' | asset_url | json }},
+          fetchProductMarkup: {{ 'component-fetch-product-markup.min.js' | asset_url | json }},
+          syncVariantImage: {{ 'component-sync-variant-image.min.js' | asset_url | json }},
+          variants: {{ 'component-variants.min.js' | asset_url | json }},
+          requiredToCheckout: {{ 'component-required-to-checkout.min.js' | asset_url | json }},
+          goToCheckout: {{ 'component-go-to-checkout.min.js' | asset_url | json }},
+          discountCode: {{ 'component-discount-code.min.js' | asset_url | json }},
+          ajaxCart: {{ 'component-ajax-cart.min.js' | asset_url | json }},
+          modal: {{ 'component-modal.min.js' | asset_url | json }},
+          loadingState: {{ 'component-loading-state.min.js' | asset_url | json }},
+          imagesLazyloading: {{ 'component-images-lazyloading.min.js' | asset_url | json }},
+          loadFontIcons: {{ 'component-load-font-icons.min.js' | asset_url | json }},
+          handleExternalLinks: {{ 'component-handle-external-links.min.js' | asset_url | json }},
+          drawer: {{ 'component-drawer.min.js' | asset_url | json }},
+          tabs: {{ 'component-tabs.min.js' | asset_url | json }},
+          learningToast: {{ 'component-learning-toast.min.js' | asset_url | json }},
+        }
+      }
+    },
+
+    settings: {
+      icon: {{ settings.icon | json }},
+      faviconUrl: {{ favicon_url | json }},
+      enableSearch: {{ settings.enable_search | json }},
+      cartType: {{ settings.cart_type | json }},
+      shareFacebook: {{ settings.share_facebook | json }},
+      shareTwitter: {{ settings.share_twitter | json }},
+      sharePinterest: {{ settings.share_pinterest | json }},
+      shareWhatsapp: {{ settings.share_whatsapp | json }},
+      shareLinkedin: {{ settings.share_linkedin | json }},
+      shareReddit: {{ settings.share_reddit | json }},
+      shareEmail: {{ settings.share_email | json }},
+      shareMessenger: {{ settings.share_messenger | json }},
+      enableSearchByProducts: {{ settings.enable_search_by_products | json }},
+      enableSearchByArticles: {{ settings.enable_search_by_articles | json }},
+      enableSearchByPages: {{ settings.enable_search_by_pages | json }},
+      saleType: {{ settings.sale_type | json }},
+      productGridEnableHistoryState: {{ settings.product_grid_enable_history_state | json }},
+      timeZone: {{ settings.time_zone | json }},
+      enableTransparentHeaderOnDesktop: {{ settings.enable_header_hero_on_desktop | json }},
+      enableTransparentHeaderOnMobile: {{ settings.enable_header_hero_on_mobile | json }},
+      newsletterApp: {{ settings.newsletter_app | json }},
+      moneyFormat: {{ shop.money_format | json }},
+      addons: {
+        automaticGeolocation:{
+          enabled: {{ settings.dbtfy_automatic_geolocation | json }},
+        },
+        addToCartAnimation: {
+          type: {{ settings.dbtfy_addtocart_animation_type | json }},
+          interval: {{ settings.dbtfy_addtocart_animation_interval | json }}
+        },
+        backToTop: {
+          showOnMobile: {{ settings.dbtfy_back_to_top_show_on_mobile | json }},
+          icon: {{ settings.dbtfy_back_to_top_icon | json }},
+          customIcon: {% if settings.dbtfy_back_to_top_custom_icon != blank %}{{ settings.dbtfy_back_to_top_custom_icon | image_url: width: 70 | json }}{% else %}null{% endif %},
+          position: {{ settings.dbtfy_back_to_top_position | json }},
+          colorScheme: "{{ settings.dbtfy_back_to_top_color_scheme }}"
+        },
+        breadcrumbs: {
+          showOnDesktop: {{ settings.dbtfy_breadcrumbs_show_on_desktop | json }},
+          showOnMobile: {{ settings.dbtfy_breadcrumbs_show_on_mobile | json }},
+          showSocialMediaOnDesktop: {{ settings.dbtfy_breadcrumbs_show_social_media_on_desktop | json }},
+          showSocialMediaOnMobile: {{ settings.dbtfy_breadcrumbs_show_social_media_on_mobile | json }},
+          colorScheme: "{{ settings.dbtfy_breadcrumbs_color_scheme }}"
+        },
+        cartBubble: {
+          enableAnimation: {{ settings.dbtfy_cart_bubble_enable_animation | json }},
+          type: {{ settings.dbtfy_cart_bubble_animation_type | json }},
+          interval: {{ settings.dbtfy_cart_bubble_animation_interval | json }},
+          position: {{ settings.dbtfy_cart_bubble_position | json }}
+        },
+        cartFavicon: {
+          icon: {% if settings.dbtfy_cart_favicon_icon != blank %}{{ settings.dbtfy_cart_favicon_icon | image_url: width: 192, height: 192 | json }}{% else %}null{% endif %},
+          errorIcon: {% if settings.dbtfy_cart_error_favicon_icon != blank %}{{ settings.dbtfy_cart_error_favicon_icon | image_url: width: 192, height: 192 | json }}{% else %}null{% endif %},
+          errorIconDuration: {{ settings.dbtfy_cart_error_favicon_icon_duration | json }},
+          iconBubbleStyle: {{ settings.dbtfy_badge_counter_style | json }},
+          iconBubblePosition: {{ settings.dbtfy_badge_counter_position | json }},
+          iconBubbleBgColor: {{ settings.dbtfy_badge_background_color | json }},
+          iconBubbleTextColor: {{ settings.dbtfy_badge_text_color | json }},
+        },
+        collectionFilters: {
+          layout: {{ settings.dbtfy_collection_filters_layout | json }}
+        },
+        cookieBox: {
+          forEUOnly: {{ settings.dbtfy_cookie_box_eu_only | json }},
+          buttonLabel: {{ settings.dbtfy_cookie_box_button_label | json }},
+          buttonStyle: {{ settings.dbtfy_cookie_box_button_style | json }},
+          content: {{ settings.dbtfy_cookie_box_content | json }},
+          colorScheme: "{{ settings.dbtfy_cookie_box_color_scheme }}"
+        },
+        customCurrencies: {
+          currencyFormat: {{ settings.dbtfy_custom_currencies_currency_format | default: 'money_with_currency_format' | json }},
+          showOriginalPrice: {{ settings.dbtfy_custom_currencies_show_original_price | json }},
+        },
+        deliveryDate: {
+          requiredToCheckout: {{ settings.dbtfy_delivery_date_required | json }},
+          excludeDays: {{ settings.dbtfy_delivery_date_exclude_days | json }},
+        },
+        facebookMessenger: {
+          code: {{ settings.dbtfy_facebook_messenger_code | json }},
+          showOnMobile: {{ settings.dbtfy_facebook_messenger_show_on_mobile | json }}
+        },
+        inactiveTabMessage: {
+          delay: {{ settings.dbtfy_inactive_tab_delay | json }},
+        },
+        infiniteScroll: {
+          type: {{ settings.dbtfy_infinite_scroll_type | json }},
+        },
+        inventoryQuantity: {
+          thresholdQuantity: {{ settings.dbtfy_inventory_quantity_threshold | json }},
+        },
+        minimumOrder: {
+          amount: {{ settings.dbtfy_minimum_order_amount | json }},
+        },
+        orderFeedback: {
+          requiredToCheckout: {{ settings.dbtfy_order_feedback_required | json }},
+        },
+        productZooming: {
+          zoomType: {{ settings.dbtfy_full_screen_zoom_type | json }},
+          showArrows: {{ settings.dbtfy_full_screen_show_arrows | json }},
+        },
+        shopProtect: {
+          disableImagesCopy: {{ settings.dbtfy_shop_protect_disable_images_copy | json }},
+          disableImagesDragging: {{ settings.dbtfy_shop_protect_images_dragging | json }},
+          disableProductTextCopy: {{ settings.dbtfy_shop_protect_disable_product_text_copy | json }},
+          disableArticleTextCopy: {{ settings.dbtfy_shop_protect_disable_article_text_copy | json }},
+          disableBestSelling: {{ settings.dbtfy_shop_protect_disable_best_selling | json }},
+        },
+        showSecondImageOnHover: {
+          enableSliderOnDesktop: {{ settings.dbtfy_show_second_image_on_hover_enable_carousel | json }}
+        },
+        smartSearch: {
+          resultLimit: {{ settings.dbtfy_smart_search_result_limit | json }},
+        },
+        scrollbar: {
+          style: {{ settings.dbtfy_scrollbar_style | json }}
+        }
+      }
+    },
+
+    strings: {
+      iconFontFamilyName: {{ settings.icon | json }},
+      iconFontFamilyUrl: {{ settings.icon | append: '.woff2' | asset_url | json }},
+      addToCartButton: {{ 'products.product.add_to_cart' | t | json }},
+      soldOutButton: {{ 'products.product.sold_out' | t | json }},
+      unavailable: {{ 'products.product.unavailable' | t | json }},
+      salePrice: {{ 'products.general.sale_price' | t | json }},
+      save: {{ 'products.general.save_html' | t | json }},
+      regularPrice: {{ 'products.general.regular_price' | t | json }},
+      shareFacebook: {{ 'general.social.share_on_facebook' | t | json }},
+      shareFacebookAlt: {{ 'general.social.alt_text.share_on_facebook' | t | json }},
+      shareTwitterAlt: {{ 'general.social.alt_text.share_on_twitter' | t | json }},
+      sharePinterestAlt: {{ 'general.social.alt_text.share_on_pinterest' | t | json }},
+      shareWhatsappAlt: {{ 'general.social.alt_text.share_on_whatsapp' | t | json }},
+      shareLinkedinAlt: {{ 'general.social.alt_text.share_on_linkedin' | t | json }},
+      shareRedditAlt: {{ 'general.social.alt_text.share_on_reddit' | t | json }},
+      shareEmailAlt: {{ 'general.social.alt_text.share_on_email' | t | json }},
+      shareMessengerAlt: {{ 'general.social.alt_text.share_on_messenger' | t | json }},
+      facebookPageId: {{ settings.facebook_page_id | json }},
+      {%- if localization.country.currency.iso_code != blank -%}
+        shopCurrency: {{ localization.country.currency.iso_code | json }},
+      {%- else -%}
+        shopCurrency: {{ shop.currency | json }},
+      {%- endif -%}
+      close: {{ 'general.password_page.close' | json }},
+      months: {
+        full: {
+          1: {{ 'general.months.full.january' | t | json }},
+          2: {{ 'general.months.full.february' | t | json }},
+          3: {{ 'general.months.full.march' | t | json }},
+          4: {{ 'general.months.full.april' | t | json }},
+          5: {{ 'general.months.full.may' | t | json }},
+          6: {{ 'general.months.full.june' | t | json }},
+          7: {{ 'general.months.full.july' | t | json }},
+          8: {{ 'general.months.full.august' | t | json }},
+          9: {{ 'general.months.full.september' | t | json }},
+          10: {{ 'general.months.full.october' | t | json }},
+          11: {{ 'general.months.full.november' | t | json }},
+          12: {{ 'general.months.full.december' | t | json }}
+        },
+        short: {
+          1: {{ 'general.months.short.january' | t | json }},
+          2: {{ 'general.months.short.february' | t | json }},
+          3: {{ 'general.months.short.march' | t | json }},
+          4: {{ 'general.months.short.april' | t | json }},
+          5: {{ 'general.months.short.may' | t | json }},
+          6: {{ 'general.months.short.june' | t | json }},
+          7: {{ 'general.months.short.july' | t | json }},
+          8: {{ 'general.months.short.august' | t | json }},
+          9: {{ 'general.months.short.september' | t | json }},
+          10: {{ 'general.months.short.october' | t | json }},
+          11: {{ 'general.months.short.november' | t | json }},
+          12: {{ 'general.months.short.december' | t | json }}
+        }
+      },
+      weekdays: {
+        full: {
+          0: {{ 'general.weekdays.full.sunday' | t | json }},
+          1: {{ 'general.weekdays.full.monday' | t | json }},
+          2: {{ 'general.weekdays.full.tuesday' | t | json }},
+          3: {{ 'general.weekdays.full.wednesday' | t | json }},
+          4: {{ 'general.weekdays.full.thursday' | t | json }},
+          5: {{ 'general.weekdays.full.friday' | t | json }},
+          6: {{ 'general.weekdays.full.saturday' | t | json }}
+        },
+        short: {
+          0: {{ 'general.weekdays.short.sunday' | t | json }},
+          1: {{ 'general.weekdays.short.monday' | t | json }},
+          2: {{ 'general.weekdays.short.tuesday' | t | json }},
+          3: {{ 'general.weekdays.short.wednesday' | t | json }},
+          4: {{ 'general.weekdays.short.thursday' | t | json }},
+          5: {{ 'general.weekdays.short.friday' | t | json }},
+          6: {{ 'general.weekdays.short.saturday' | t | json }}
+        }
+      },
+      addons: {
+        agreeToTerms: {
+          warning: {{ 'add-ons.agree_to_terms.warning_text' | t | json }},
+        },
+        deliveryDate: {
+          warning: {{ 'add-ons.delivery_date.error_message' | t | json }},
+        },
+        inactiveTabMessage: {
+          firstMessage: {{ 'add-ons.inactive_tab_message.first_message' | t | json }},
+          secondMessage: {{ 'add-ons.inactive_tab_message.second_message' | t | json }},
+        },
+        minimumOrder: {
+          reached: {{ 'add-ons.minimum_order.amount_reached_text' | t | json }},
+          notReached: {{ 'add-ons.minimum_order.amount_unreached_text' | t | json }},
+        },
+        orderFeedback: {
+          otherText: {{ 'add-ons.order_feedback.other_option_text' | t | json }},
+        },
+        quickCompare: {
+          add: {{ 'add-ons.quick_compare.add_to_compare_text' | t | json }},
+          remove: {{ 'add-ons.quick_compare.remove_from_compare_text' | t | json }},
+        },
+        trustBadge: {
+          text: {{ 'add-ons.trust_badge.text' | t | json }},
+        },
+        wishlist: {
+          add: {{ 'add-ons.wishlist.add_to_wishlist_text' | t | json }},
+          remove: {{ 'add-ons.wishlist.remove_from_wishlist_text' | t | json }},
+        },
+      }
+    },
+
+    variables: {
+      pageTitle: {{ page_title | json }},
+      pageDescription: {{ page_description | json }},
+      pageImage: {{ page_image | json }},
+      currentTags: {{ current_tags | json }},
+      shop: {
+        name: {{ shop.name | json }},
+        publishedLocales: {{ shop.published_locales | json }},
+        permanentDomain: {{ shop.permanent_domain | json }}
+      },
+      request: {
+        path: {{ request.path | json }},
+        host: {{ request.host | json }},
+        pageType: {{ request.page_type | json }},
+      },
+      routes: {
+        rootUrl: {{ routes.root_url | json }},
+        predictiveSearchUrl: {{ routes.predictive_search_url | json }},
+      },
+      page: {
+        url: {{ page.url | json }},
+        title: {{ page.title | json }},
+      },
+      collection: {
+        url: {{ collection.url | json }},
+        title: {{ collection.title | json }},
+        image: {{ collection.image | json }},
+        image1200: {% if collection.image != blank %}{{ collection.image | image_url: width: 1200 | json }}{% else %}null{% endif %},
+      },
+      product: {
+        url: {{ product.url | json }},
+        title: {{ product.title | json }},
+        featuredMedia1200: {% if product.featured_media != blank %}{{ product.featured_media | image_url: width: 1200 | json }}{% else %}null{% endif %},
+      },
+      blog: {
+        url: {{ blog.url | json }},
+        title: {{ blog.title | json }},
+      },
+      article: {
+        url: {{ article.url | json }},
+        title: {{ article.title | json }},
+        image: {{ article.image | json }},
+        image1200: {% if article.image != blank %}{{ article.image | image_url: width: 1200 | json }}{% else %}null{% endif %},
+      },
+      cart: {
+        itemCount: {{ cart.item_count | json }}
+      },
+      productPlaceholderSvg: {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' | json }}
+    },
+
+    breakpoints: {
+      'sm': 'screen and (min-width: 576px)',
+      'md': 'screen and (min-width: 768px)',
+      'lg': 'screen and (min-width: 992px)',
+      'xl': 'screen and (min-width: 1200px)',
+
+      'sm-max': 'screen and (max-width: 575px)',
+      'md-max': 'screen and (max-width: 767px)',
+      'lg-max': 'screen and (max-width: 991px)',
+      'xl-max': 'screen and (max-width: 1199px)'
+    },
+
+    animation: {
+      duration: 600,
+      durationSlow: 1000,
+      speed: 300,
+    },
+
+    widgets: {
+      'add-to-cart-animation': {
+        enabled: {{ settings.dbtfy_addtocart_animation | json }},
+        scriptUrl: {{ 'add-to-cart-animation.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'age-check': {
+        enabled: {{ settings.dbtfy_age_check | json }},
+        scriptUrl: {{ 'age-check.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'agree-to-terms': {
+        enabled: {{ settings.dbtfy_agree_to_terms | json }},
+        scriptUrl: {{ 'agree-to-terms.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'announcement-bar': {
+        enabled: {{ settings.dbtfy_announcement_bar | json }},
+        scriptUrl: {{ 'announcement-bar.min.js' | asset_url | json }},
+        tier: 'free'
+      },
+      'automatic-geolocation': {
+        enabled: {{ settings.dbtfy_automatic_geolocation | json }},
+        scriptUrl: {{ 'automatic-geolocation.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'back-in-stock': {
+        enabled: {{ settings.dbtfy_back_in_stock | json }},
+        scriptUrl: {{ 'back-in-stock.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'back-to-top': {
+        enabled: {{ settings.dbtfy_back_to_top | json }},
+        scriptUrl: {{ 'back-to-top.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'breadcrumbs': {
+        enabled: {{ settings.dbtfy_breadcrumbs | json }},
+        tier: 'paid'
+      },
+      'blog-posts': {
+        enabled: {{ settings.dbtfy_blog_posts | json }},
+        scriptUrl: {{ 'blog-posts.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-bubble': {
+        enabled: {{ settings.dbtfy_cart_bubble | json }},
+        scriptUrl: {{ 'cart-bubble.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-discount': {
+        enabled: {{ settings.dbtfy_cart_discount | json }},
+        scriptUrl: {{ 'cart-discount.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-favicon': {
+        enabled: {{ settings.dbtfy_cart_favicon | json }},
+        scriptUrl: {{ 'cart-favicon.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-goal': {
+        enabled: {{ settings.dbtfy_cart_goal | json }},
+        scriptUrl: {{ 'cart-goal.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-notification': {
+        enabled: {{ settings.dbtfy_cart_notification | json }},
+        scriptUrl: {{ 'cart-notification.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-reminder': {
+        enabled: {{ settings.dbtfy_cart_reminder | json }},
+        scriptUrl: {{ 'cart-reminder.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-savings': {
+        enabled: {{ settings.dbtfy_cart_savings | json }},
+        scriptUrl: {{ 'cart-savings.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cart-upsell': {
+        enabled: {{ settings.dbtfy_cart_upsell | json }},
+        scriptUrl: {{ 'cart-upsell.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'collection-addtocart': {
+        enabled: {{ settings.dbtfy_collection_addtocart | json }},
+        scriptUrl: {{ 'collection-addtocart.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'collection-filters': {
+        enabled: {{ settings.dbtfy_collection_filters | json }},
+        scriptUrl: {{ 'collection-filters.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'collections-list': {
+        enabled: {{ settings.dbtfy_collections_list | json }},
+        scriptUrl: {{ 'collections-list.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'color-swatches': {
+        enabled: {{ settings.dbtfy_color_swatches | json }},
+        scriptUrl: {{ 'color-swatches.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'cookie-box': {
+        enabled: {{ settings.dbtfy_cookie_box | json }},
+        scriptUrl: {{ 'cookie-box.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'custom-code': {
+        enabled: {{ settings.dbtfy_custom_code | json }},
+        scriptUrl: {{ 'custom-code.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'custom-currencies': {
+        enabled: {{ settings.dbtfy_custom_currencies | json }},
+        scriptUrl: {{ 'custom-currencies.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'customizable-products': {
+        enabled: {{ settings.dbtfy_customizable_products | json }},
+        scriptUrl: {{ 'customizable-products.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'delivery-date': {
+        enabled: {{ settings.dbtfy_delivery_date | json }},
+        scriptUrl: {{ 'delivery-date.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'delivery-time': {
+        enabled: {{ settings.dbtfy_delivery_time | json }},
+        scriptUrl: {{ 'delivery-time.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'discount-saved': {
+        enabled: {{ settings.dbtfy_discount_saved | json }},
+        scriptUrl: {{ 'discount-saved.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'facebook-messenger': {
+        enabled: {{ settings.dbtfy_facebook_messenger | json }},
+        scriptUrl: {{ 'facebook-messenger.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'faq': {
+        enabled: {{ settings.dbtfy_faq_page | json }},
+        scriptUrl: {{ 'faq.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'featured-collection': {
+        enabled: {{ settings.dbtfy_featured_collection | json }},
+        scriptUrl: {{ 'featured-collection.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'gift-wrap': {
+        enabled: {{ settings.dbtfy_gift_wrap | json }},
+        scriptUrl: {{ 'gift-wrap.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'image-banner': {
+        enabled: {{ settings.dbtfy_image_banner | json }},
+        tier: 'free'
+      },
+      'image-with-text': {
+        enabled: {{ settings.dbtfy_image_with_text | json }},
+        scriptUrl: {{ 'image-with-text.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'inactive-tab-message': {
+        enabled: {{ settings.dbtfy_inactive_tab_message | json }},
+        scriptUrl: {{ 'inactive-tab-message.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'infinite-scroll': {
+        enabled: {{ settings.dbtfy_infinite_scroll | json }},
+        scriptUrl: {{ 'infinite-scroll.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'instagram-feed': {
+        enabled: {{ settings.dbtfy_instagram_feed | json }},
+        scriptUrl: {{ 'instagram-feed.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'inventory-quantity': {
+        enabled: {{ settings.dbtfy_inventory_quantity | json }},
+        scriptUrl: {{ 'inventory-quantity.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'linked-options': {
+        enabled: {{ settings.dbtfy_linked_options | json }},
+        scriptUrl: {{ 'linked-options.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'logo-list': {
+        enabled: {{ settings.dbtfy_logo_list | json }},
+        scriptUrl: {{ 'logo-list.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'mega-menu': {
+        enabled: {{ settings.dbtfy_mega_menu | json }},
+        scriptUrl: {{ 'mega-menu.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'menu-bar': {
+        enabled: {{ settings.dbtfy_menu_bar | json }},
+        scriptUrl: {{ 'menu-bar.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'minimum-order': {
+        enabled: {{ settings.dbtfy_minimum_order | json }},
+        scriptUrl: {{ 'minimum-order.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'newsletter': {
+        enabled: {{ settings.dbtfy_newsletter | json }},
+        scriptUrl: {{ 'newsletter.min.js' | asset_url | json }},
+        tier: 'free'
+      },
+      'newsletter-popup': {
+        enabled: {{ settings.dbtfy_newsletter_popup | json }},
+        scriptUrl: {{ 'newsletter-popup.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'order-feedback': {
+        enabled: {{ settings.dbtfy_order_feedback | json }},
+        scriptUrl: {{ 'order-feedback.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'order-tracking': {
+        enabled: {{ settings.dbtfy_order_tracking | json }},
+        scriptUrl: {{ 'order-tracking.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'page-speed-booster': {
+        enabled: {{ settings.dbtfy_page_speed_booster | json }},
+        scriptUrl: {{ 'page-speed-booster.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'page-transition': {
+        enabled: {{ settings.dbtfy_page_transition | json }},
+        scriptUrl: {{ 'page-transition.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'pricing-table': {
+        enabled: {{ settings.dbtfy_pricing_table | json }},
+        scriptUrl: {{ 'pricing-table.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'product-bullet-points': {
+        enabled: {{ settings.dbtfy_product_bullet_points | json }},
+        scriptUrl: {{ 'product-bullet-points.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'product-image-crop': {
+        enabled: {{ settings.dbtfy_product_image_crop | json }},
+        scriptUrl: {{ 'product-image-crop.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'product-swatches': {
+        enabled: {{ settings.dbtfy_product_swatches | json }},
+        scriptUrl: {{ 'product-swatches.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'product-tabs': {
+        enabled: {{ settings.dbtfy_product_tabs | json }},
+        scriptUrl: {{ 'product-tabs.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'product-zooming': {
+        enabled: {{ settings.dbtfy_product_zooming | json }},
+        scriptUrl: {{ 'product-zooming.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'quantity-breaks': {
+        enabled: {{ settings.dbtfy_quantity_breaks | json }},
+        scriptUrl: {{ 'quantity-breaks.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'quick-compare': {
+        enabled: {{ settings.dbtfy_quick_compare | json }},
+        scriptUrl: {{ 'quick-compare.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'quick-view': {
+        enabled: {{ settings.dbtfy_quick_view | json }},
+        scriptUrl: {{ 'quick-view.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'recently-viewed': {
+        enabled: {{ settings.dbtfy_recently_viewed | json }},
+        scriptUrl: {{ 'recently-viewed.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'remove-debutify-branding': {
+        enabled: {{ settings.dbtfy_remove_debutify_branding | json }},
+        scriptUrl: {{ 'remove-debutify-branding.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'shop-protect': {
+        enabled: {{ settings.dbtfy_shop_protect | json }},
+        scriptUrl: {{ 'shop-protect.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'show-second-image-on-hover': {
+        enabled: {{ settings.dbtfy_show_second_image_on_hover | json }},
+        scriptUrl: {{ 'show-second-image-on-hover.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'size-chart': {
+        enabled: {{ settings.dbtfy_size_chart | json }},
+        scriptUrl: {{ 'size-chart.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'skip-cart': {
+        enabled: {{ settings.dbtfy_skip_cart | json }},
+        scriptUrl: {{ 'skip-cart.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'smart-search': {
+        enabled: {{ settings.dbtfy_smart_search | json }},
+        scriptUrl: {{ 'smart-search.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'social-discount': {
+        enabled: {{ settings.dbtfy_social_discount | json }},
+        scriptUrl: {{ 'social-discount.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'sticky-addtocart': {
+        enabled: {{ settings.dbtfy_sticky_addtocart | json }},
+        scriptUrl: {{ 'sticky-addtocart.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'sticky-header': {
+        enabled: {{ settings.dbtfy_sticky_header | json }},
+        scriptUrl: {{ 'sticky-header.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'synced-variant-image': {
+        enabled: {{ settings.dbtfy_synced_variant_image | json }},
+        scriptUrl: {{ 'synced-variant-image.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'testimonials': {
+        enabled: {{ settings.dbtfy_testimonials | json }},
+        scriptUrl: {{ 'testimonials.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'text-columns-with-images': {
+        enabled: {{ settings.dbtfy_text_columns_with_images | json }},
+        scriptUrl: {{ 'text-columns-with-images.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'trust-badge': {
+        enabled: {{ settings.dbtfy_trust_badge | json }},
+        scriptUrl: {{ 'trust-badge.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'upsell-bundles': {
+        enabled: {{ settings.dbtfy_upsell_bundles | json }},
+        scriptUrl: {{ 'upsell-bundles.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'upsell-popup': {
+        enabled: {{ settings.dbtfy_upsell_popup | json }},
+        scriptUrl: {{ 'upsell-popup.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'wishlist': {
+        enabled: {{ settings.dbtfy_wish_list | json }},
+        scriptUrl: {{ 'wishlist.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'comparison-table': {
+        enabled: {{ settings.dbtfy_comparison_table | json }},
+        scriptUrl: {{ 'comparison-table.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'result-section': {
+        enabled: {{ settings.dbtfy_result_section | json }},
+        scriptUrl: {{ 'result-section.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'scrollbar-cursor': {
+        enabled: {{ settings.dbtfy_scrollbar_cursor | json }},
+        scriptUrl: {{ 'scrollbar-cursor.min.js' | asset_url | json }},
+        tier: 'free'
+      },
+      'sales-popup-notification': {
+        enabled: {{ settings.dbtfy_sales_popup_notification | json }},
+        scriptUrl: {{ 'sales-popup-notification.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'split-video-with-text': {
+        enabled: {{ settings.dbtfy_split_video_with_text | json }},
+        scriptUrl: {{ 'split-video-with-text.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'before-after-image': {
+        enabled: {{ settings.dbtfy_before_after_image | json }},
+        scriptUrl: {{ 'before-after-image.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'scrolling-banner': {
+        enabled: {{ settings.dbtfy_scrolling_banner | json }},
+        scriptUrl: {{ 'scrolling-banner.min.js' | asset_url | json }},
+        tier: 'paid'
+      },
+      'slideshow': {
+        enabled: {{ settings.dbtfy_slideshow | json }},
+        scriptUrl: {{ 'slideshow.min.js' | asset_url | json }},
+        tier: 'paid'
+      }
+    }
+  };
+</script>

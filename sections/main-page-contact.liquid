@@ -1,0 +1,768 @@
+{%- liquid
+  assign section_style = section.settings.section_style
+  assign container_size = section.settings.container_size
+  assign show_label = section.settings.show_label
+  assign show_placeholder = section.settings.show_placeholder
+  assign color_scheme = section.settings.color_scheme
+-%}
+
+<div class="section section--{{ section_style }} color-{{ color_scheme }}">
+  <div class="{{ container_size }}">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="mt-3 mt-md-5">
+          {%- form 'contact', class: 'form form--vertical' -%}
+            {%- if section.settings.show_heading -%}
+              <div class="text-center">
+                <h2 class="h2 page-title mb-3">
+                  {{- page.title | escape -}}
+                </h2>
+              </div>
+            {%- endif -%}
+
+            <div class="col-md-12">
+              {%- if form.posted_successfully? -%}
+                <div class="note form form--success">
+                  <p>
+                    <span class="{{ settings.icon }} icon icon-width" translate="no" aria-hidden="true">verified</span>
+                    {{- 'contact.form.post_success' | t -}}
+                  </p>
+                </div>
+              {%- elsif form.errors -%}
+                {{- form.errors | default_errors -}}
+              {%- endif -%}
+            </div>
+
+            <div class="row row--sm">
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign required = block.settings.required
+                  assign half_width = block.settings.half_width
+                  assign label = block.settings.label
+                  assign label_handleized = label | handleize
+                  assign group_type = block.settings.type
+                  assign property_value = label_handleized
+
+                  if half_width
+                    assign block_input_width = 'col-md-6'
+                  else
+                    assign block_input_width = 'col-md-12'
+                  endif
+                -%}
+
+                {%- case block.type -%}
+                  {%- when 'name' -%}
+                    <div class="{{ block_input_width }}">
+                      {%- if show_label -%}
+                        <label for="ContactFormName" class="mb-1">{{ 'contact.form.name' | t }}</label>
+                      {%- endif -%}
+
+                      <input
+                        type="text"
+                        id="ContactFormName"
+                        name="contact[{{ 'contact.form.name' | t }}]"
+                        placeholder="{%- if show_placeholder -%}{{ 'contact.form.name' | t }}{%- if required -%}*{%- endif -%}{%- endif -%}"
+                        autocapitalize="words"
+                        autofocus="autofocus"
+                        class="input input--full"
+                        {%- if required -%}
+                          required aria-required="true"
+                        {%- endif -%}
+                        value="{%- if form['contact.form.name'] -%}{{ form['contact.form.name'] }}{%- elsif customer -%}{{ customer.name }}{%- endif -%}"
+                      >
+                    </div>
+
+                  {%- when 'heading' -%}
+                    {%- if block.settings.heading != blank -%}
+                      {%- liquid
+                        assign heading_class = 'h4'
+
+                        case block.settings.heading_size
+                          when 'small'
+                            assign heading_class = 'h6'
+
+                          when 'large'
+                            assign heading_class = 'h2'
+
+                        endcase
+                      -%}
+
+                      <div class="text-center">
+                        <h2 class="{{ heading_class }} mb-3">
+                          {{- block.settings.heading | escape -}}
+                        </h2>
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'text-field' -%}
+                    <div class="{{ block_input_width }}">
+                      {%- assign block_label = block.settings.label | default: block.settings.placeholder -%}
+
+                      {%- case group_type -%}
+                        {%- when 'text' -%}
+                          {%- if show_label and block.settings.label != blank -%}
+                            <label for="ContactForm-{{ block.settings.type }}-{{ block.id }}" class="mb-1">
+                              {{- block.settings.label | escape -}}
+                            </label>
+                          {%- endif -%}
+
+                          <input
+                            type="text"
+                            id="ContactForm-{{ block.settings.type }}-{{ block.id }}"
+                            name="contact[{{ block_label | escape }}]"
+                            placeholder="{%- if show_placeholder and block.settings.placeholder != blank -%}{{block.settings.placeholder}}{%- if required and block.settings.label != blank -%}*{%- endif -%}{%- endif -%}"
+                            autocapitalize="words"
+                            class="input input--full"
+                            {%- if required -%}
+                              required aria-required="true"
+                            {%- endif -%}
+                          >
+
+                        {%- when 'textarea' -%}
+                          {%- if show_label and block.settings.label != blank -%}
+                            <label for="ContactForm-{{ block.type }}-{{ block.id }}" class="mb-1">
+                              {{- block.settings.label | escape -}}
+                            </label>
+                          {%- endif -%}
+
+                          <textarea
+                            rows="3"
+                            id="ContactForm-{{ block.type }}-{{ block.id }}"
+                            name="contact[{{ block_label | escape }}]"
+                            {%- if required -%}
+                              required aria-required="true"
+                            {%- endif -%}
+                            placeholder="{%- if show_placeholder and block.settings.placeholder != blank -%}{{ block.settings.placeholder }}{%- if required and block.settings.label != blank -%}*{%- endif -%}{%- endif -%}"
+                          ></textarea>
+
+                        {%- when 'email' -%}
+                          {%- if show_label and block.settings.label != blank -%}
+                            <label for="ContactForm-{{ block.type }}-{{ block.id }}" class="mb-1">
+                              {{- block.settings.label | escape -}}
+                            </label>
+                          {%- endif -%}
+
+                          <input
+                            type="email"
+                            id="ContactForm-{{ block.type }}-{{ block.id }}"
+                            class="input input--full{%- if form.errors contains 'email' -%} input--error{%- endif -%}"
+                            name="contact[{{ block_label | escape }}]"
+                            placeholder="{%- if show_placeholder and block.settings.placeholder != blank -%}{{ block.settings.placeholder }}{%- if required and block.settings.label != blank -%}*{%- endif -%}{%- endif -%}"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
+                            required
+                            aria-required="true"
+                          >
+
+                        {%- when 'number' -%}
+                          {%- if show_label and block.settings.label != blank -%}
+                            <label for="ContactForm-{{ block.type }}-{{ block.id }}" class="mb-1">
+                              {{- block.settings.label | escape -}}
+                            </label>
+                          {%- endif -%}
+
+                          <input
+                            type="number"
+                            id="ContactForm-{{ block.type }}-{{ block.id }}"
+                            name="contact[{{ block_label | escape }}]"
+                            placeholder="{%- if show_placeholder and block.settings.placeholder != blank -%}{{ block.settings.placeholder }}{%- if required and block.settings.label != blank -%}*{%- endif -%}{%- endif -%}"
+                            autocapitalize="words"
+                            inputmode="numeric"
+                            class="input input--full"
+                            {%- if required -%}
+                              required aria-required="true"
+                            {%- endif -%}
+                          >
+                      {%- endcase -%}
+                    </div>
+
+                  {%- when 'email' -%}
+                    <div class="{{ block_input_width }}">
+                      {%- if show_label -%}
+                        <label for="ContactFormEmail" class="mb-1">{{ 'contact.form.email' | t }}</label>
+                      {%- endif -%}
+
+                      <input
+                        type="email"
+                        id="ContactFormEmail"
+                        class="input input--full{%- if form.errors contains 'email' -%} input--error{%- endif -%}"
+                        name="contact[email]"
+                        placeholder="{%- if show_placeholder -%}{{ 'contact.form.email' | t }}*{%- endif -%}"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
+                        required
+                        aria-required="true"
+                        value="{%- if form.email -%}{{ form.email }}{%- elsif customer -%}{{ customer.email }}{%- endif -%}"
+                        {%- if form.errors contains 'email' -%}
+                          aria-invalid="true"
+                        {%- endif -%}
+                      >
+                    </div>
+
+                  {%- when 'phone' -%}
+                    <div class="{{ block_input_width }}">
+                      {%- if show_label -%}
+                        <label for="ContactFormPhone" class="mb-1">{{ 'contact.form.phone' | t }}</label>
+                      {%- endif -%}
+
+                      <input
+                        type="tel"
+                        inputmode="numeric"
+                        id="ContactFormPhone"
+                        name="contact[{{ 'contact.form.phone' | t }}]"
+                        placeholder="{%- if show_placeholder -%}{{ 'contact.form.phone' | t }}{%- if required -%}*{%- endif -%}{%- endif -%}"
+                        pattern="[0-9\-]*"
+                        {%- if required -%}
+                          required aria-required="true"
+                        {%- endif -%}
+                        value="{%- if customer -%}{{ customer.phone }}{%- endif -%}"
+                      >
+                    </div>
+
+                  {%- when 'message' -%}
+                    <div class="{{ block_input_width }}">
+                      {%- if show_label -%}
+                        <label for="ContactFormMessage" class="mb-1">{{ 'contact.form.message' | t }}</label>
+                      {%- endif -%}
+
+                      <textarea
+                        rows="3"
+                        id="ContactFormMessage"
+                        name="contact[body]"
+                        {%- if required -%}
+                          required aria-required="true"
+                        {%- endif -%}
+                        placeholder="{%- if show_placeholder -%}{{ 'contact.form.message' | t }}{%- if required -%}*{%- endif -%}{%- endif -%}"
+                      >
+                        {%- if form.body -%}{{ form.body }}{%- endif -%}
+                      </textarea>
+                    </div>
+
+                  {%- when 'group' -%}
+                    {% assign options = block.settings.options | split: '
+' %}
+
+                    <div class="{{ block_input_width }}">
+                      {%- unless group_type == 'dropdown' and show_label == false -%}
+                        <label for="{{ label_handleized }}-{{ block.id }}" class="mb-1">
+                          {{- block.settings.label | escape -}}
+                        </label>
+                      {%- endunless -%}
+
+                      {%- case group_type -%}
+                        {%- when 'dropdown' -%}
+                          <select
+                            class="select select--sm"
+                            id="{{ label_handleized }}-{{ block.id }}"
+                            name="contact[{{ label }}]"
+                          >
+                            {%- if block.settings.label != blank -%}
+                              <option disabled selected value="">
+                                {{- block.settings.label | escape -}}
+                              </option>
+                            {%- endif -%}
+
+                            {%- for option in options -%}
+                              {%- liquid
+                                assign option_name = option | strip
+                                assign option_label = option_name
+                              -%}
+
+                              <option value="{{ option_name }}">
+                                {{- option_label -}}
+                              </option>
+                            {%- endfor -%}
+                          </select>
+
+                        {%- when 'radio_buttons' -%}
+                          {%- if label != blank -%}
+                            {%- for option in options -%}
+                              {%- assign option_name = option | strip -%}
+
+                              <div class="radio{% unless forloop.last %} mb-2{% endunless %}">
+                                <input
+                                  id="radio-{{ forloop.index }}-{{ block.id }}"
+                                  {% if forloop.first %}
+                                    checked
+                                  {% endif %}
+                                  type="radio"
+                                  name="contact[{{ label }}]"
+                                  value="{{ option_name }}"
+                                >
+
+                                <label for="radio-{{ forloop.index }}-{{ block.id }}">
+                                  {{- option_name -}}
+                                </label>
+                              </div>
+                            {%- endfor -%}
+                          {%- endif -%}
+
+                        {%- when 'checkbox_group' -%}
+                          {%- if label != blank -%}
+                            {%- for option in options -%}
+                              {%- assign option_name = option | strip -%}
+
+                              <div class="checkbox{% unless forloop.last %} mb-2{% endunless %}">
+                                <input
+                                  class="dbtfy-customizable-products__block-checkbox"
+                                  type="checkbox"
+                                  {% if forloop.first %}
+                                    checked
+                                  {% endif %}
+                                  id="checkbox-{{ forloop.index }}-{{ block.id }}"
+                                  name="contact[{{ label }}]"
+                                  value="{{ option_name }}"
+                                >
+
+                                <label for="checkbox-{{ forloop.index }}-{{ block.id }}">
+                                  {{- option_name -}}
+                                </label>
+                              </div>
+                            {%- endfor -%}
+                          {%- endif -%}
+                      {%- endcase -%}
+                    </div>
+
+                  {%- when 'page-content' -%}
+                    {%- if page.content != blank -%}
+                      <div class="rte mb-5">
+                        {{- page.content -}}
+                      </div>
+                    {%- endif -%}
+                {%- endcase -%}
+              {%- endfor -%}
+
+              <div class="col-md-12 {{ section.settings.btn_alignment }}">
+                <button type="submit" class="btn btn--primary w-md-auto">
+                  <span class="btn__text">
+                    {{- 'contact.form.send' | t -}}
+
+                    {%- if section.settings.btn_icon -%}
+                      <span class="{{ settings.icon }} icon mx-0" translate="no" aria-hidden="true">arrow_forward</span>
+                    {%- endif -%}
+                  </span>
+                </button>
+              </div>
+            </div>
+          {%- endform -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_page_contact.name",
+  "class": "custom-contact",
+  "disabled_on": {
+    "groups": [
+      "custom.widgets",
+      "custom.general",
+      "header"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.addons.help_center.header.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:general.addons.help_center.page_contact.content"
+    },
+    {
+      "type": "header",
+      "content": "t:general.addons.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "section_style",
+      "label": "t:general.settings.section_style.label",
+      "default": "blank",
+      "options": [
+        {
+          "value": "blank",
+          "label": "t:general.settings.section_style.options__1.label"
+        },
+        {
+          "value": "default",
+          "label": "t:general.settings.section_style.options__2.label"
+        },
+        {
+          "value": "border",
+          "label": "t:general.settings.section_style.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container_size",
+      "label": "t:general.settings.container_size.label",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:general.settings.container_size.options__2.label"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:general.settings.container_size.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.main_page_contact.settings.page_title.content",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_page_contact.settings.form_fields.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_placeholder",
+      "label": "t:sections.main_page_contact.settings.placeholder.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label",
+      "label": "t:sections.main_page_contact.settings.label.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_page_contact.settings.button_header.label"
+    },
+    {
+      "type": "select",
+      "id": "btn_alignment",
+      "label": "Button alignment",
+      "default": "text-center",
+      "options": [
+        {
+          "label": "Left",
+          "value": "text-start"
+        },
+        {
+          "label": "Center",
+          "value": "text-center"
+        },
+        {
+          "label": "Right",
+          "value": "text-end"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "btn_icon",
+      "label": "Show button icon",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "Name",
+      "type": "name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.main_page_contact.settings.required.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "email",
+      "name": "Email",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main_page_contact.settings.email_notice.content"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "page-content",
+      "name": "t:sections.main_password.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.main_page_contact.settings.page_content.content"
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "name": "Phone",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.main_page_contact.settings.required.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "name": "Message",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.main_page_contact.settings.required.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Send us a message!"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "options": [
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "medium",
+          "label": "Heading size"
+        }
+      ]
+    },
+    {
+      "type": "text-field",
+      "name": "Text field",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "Placeholder",
+          "default": "Subject"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.addons.customizable_products.blocks.group.settings.label.label",
+          "default": "Subject"
+        },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Type",
+          "options": [
+            {
+              "value": "text",
+              "label": "Text"
+            },
+            {
+              "value": "textarea",
+              "label": "Text area"
+            },
+            {
+              "value": "number",
+              "label": "Number"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.main_page_contact.settings.required.label",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "t:sections.addons.customizable_products.blocks.group.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:general.sections.blocks.block_name.label",
+          "info": "t:general.sections.blocks.block_name.info"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.addons.customizable_products.blocks.group.settings.header__1.content"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.addons.customizable_products.blocks.group.settings.label.label",
+          "default": "Select a topic"
+        },
+        {
+          "type": "textarea",
+          "id": "options",
+          "label": "t:sections.addons.customizable_products.blocks.group.settings.options.label",
+          "info": "t:sections.main_page_contact.settings.options.info",
+          "default": "Product Inquiry\nOrder Status\nShipping Information\nWarranty and Repairs\nReturns and Exchanges\nFeedback and Suggestions"
+        },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "t:sections.addons.customizable_products.blocks.group.settings.type.label",
+          "options": [
+            {
+              "value": "dropdown",
+              "label": "t:sections.addons.customizable_products.blocks.group.settings.type.options__1.label"
+            },
+            {
+              "value": "radio_buttons",
+              "label": "t:sections.addons.customizable_products.blocks.group.settings.type.options__2.label"
+            },
+            {
+              "value": "checkbox_group",
+              "label": "t:sections.addons.customizable_products.blocks.group.settings.type.options__3.label"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "half_width",
+          "label": "t:sections.main_page_contact.settings.half_width.label",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact form",
+      "blocks": [
+        {
+          "type": "page-content"
+        },
+        {
+          "type": "name"
+        },
+        {
+          "type": "email"
+        },
+        {
+          "type": "message"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

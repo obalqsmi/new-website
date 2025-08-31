@@ -1,0 +1,138 @@
+{%- liquid
+  assign form_classes = 'form form--vertical'
+
+  if settings.newsletter_app == 'omnisend'
+    assign form_classes = form_classes | append: ' omnisend-subscribe-form no-loading-state'
+  endif
+
+  if is_sticky
+    assign form_classes = form_classes | append: ' form--sticky'
+  endif
+
+  if settings.newsletter_app == 'klaviyo'
+    assign customer_tag_list = source | split: ','
+    assign is_tag_present = false
+
+    for tag in customer_tag_list
+      assign current_tag = tag | lstrip | rstrip | downcase
+
+      if current_tag == 'newsletter'
+        assign is_tag_present = true
+        break
+      endif
+    else
+      assign source = source | prepend: 'newsletter'
+      assign is_tag_present = true
+    endfor
+
+    unless is_tag_present
+      assign source = source | prepend: 'newsletter, '
+    endunless
+  endif
+-%}
+
+{%- capture form_id %}ContactForm--{{ section.id }}{%- endcapture -%}
+
+{%- form 'customer', class: form_classes, id: form_id -%}
+  {%- capture first_name %}
+    <div>
+      <input style="{% if border_radius %}border-radius: {{ border_radius }}px !important;{% endif %}"
+             type="text"
+             class="input input--sm input--full{% if settings.newsletter_app == 'omnisend' %} omnisend-subscribe-input-first-name{% endif %}"
+             name="contact[first_name]"
+             placeholder="{{ 'customer.register.first_name' | t }}"
+             aria-label="{{ 'customer.register.first_name' | t }}"
+             autocapitalize="words"
+             value="{%- if form.first_name -%}{{ form.first_name }}{%- elsif customer -%}{{ customer.first_name }}{%- endif -%}">
+    </div>
+  {%- endcapture -%}
+
+  {%- capture opt_in_checkbox %}
+    <input type="hidden" name="customer[accepts_marketing]" value="" />
+
+    <div class="checkbox-container">
+      <div class="checkbox">
+        <input id="newsletterOptin-{{ section.id }}"
+               type="checkbox"
+               name="customer[accepts_marketing]"
+               checked="checked" />
+        <label for="newsletterOptin-{{ section.id }}" class="text-sm">{{ 'shopify.checkout.marketing.accept_marketing_checkbox_label' | t }}</label>
+      </div>
+    </div>
+  {%- endcapture -%}
+
+  {%- if form.errors -%}
+    <div>
+      {{- form.errors | default_errors -}}
+    </div>
+  {%- endif -%}
+
+  {%- if form.posted_successfully? -%}
+    <div>
+      <div class="note form form--success">
+        {{ 'general.newsletter_form.newsletter_confirmation' | t -}}
+      </div>
+    </div>
+  {%- else -%}
+    <input type="hidden" name="contact[tags]" value="{{ source }}">
+
+    {%- if show_newsletter_first_name == false or show_newsletter_first_name == true -%}
+      {%- if show_newsletter_first_name -%}
+        {{- first_name -}}
+      {%- endif -%}
+    {%- elsif settings.show_newsletter_name -%}
+      {{- first_name -}}
+    {%- endif -%}
+
+    <div>
+      <input style="{% if border_radius %}border-radius: {{ border_radius }}px !important;{% endif %}"
+             type="email"
+             class="input input--sm input--full{% if form.errors contains 'email' %} input--error{% endif %}{% if settings.newsletter_app == 'omnisend' %} omnisend-subscribe-input-email{% endif %}"
+             name="contact[email]"
+             placeholder="{{ 'general.newsletter_form.newsletter_placeholder' | t }}"
+             aria-label="{{ 'general.newsletter_form.newsletter_placeholder' | t }}"
+             autocorrect="off"
+             autocapitalize="off"
+             required="required"
+             pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$"
+             aria-required="true"
+             value="{%- if form.email -%}{{ form.email }}{%- elsif customer -%}{{ customer.email }}{%- endif -%}"
+          {%- if form.errors contains 'email' -%}
+            aria-invalid="true"
+          {%- endif -%}
+      >
+    </div>
+
+    {%- if enable_newsletter_opt_in_checkbox == false or enable_newsletter_opt_in_checkbox == true -%}
+      {%- if enable_newsletter_opt_in_checkbox -%}
+        {{- opt_in_checkbox -}}
+      {%- endif -%}
+    {%- elsif settings.enable_newsletter_opt_in_checkbox -%}
+      {{- opt_in_checkbox -}}
+    {%- endif -%}
+
+    <div>
+      <button style="{% if button_shape == 'square' %}border-radius: 0;{% elsif button_shape == 'circle' %}border-radius: 50px; {% endif %}" class="btn btn--full{% if button_style %} {{ button_style }}{% else %} btn--primary{% endif %}" type="submit" name="commit">
+        <span class="btn__text">
+          <span class="{{ settings.icon }}" translate="no" aria-hidden="true">
+            {%- if button_custom_icon != blank -%}
+              {{- button_custom_icon | image_url: width: 20 | image_tag: loading: 'lazy', sizes: '100px', widths: '20,30,40,50,60,70,80,90,100,120,140,160' -}}
+            {%- elsif button_icon != blank -%}
+              {{- button_icon -}}
+            {%- else -%}
+              email
+            {%- endif -%}
+          </span>
+
+          <span>
+            {%- if button_label != blank -%}
+              {{- button_label -}}
+            {%- else -%}
+              {{- 'general.newsletter_form.submit' | t -}}
+            {%- endif -%}
+          </span>
+        </span>
+      </button>
+    </div>
+  {%- endif -%}
+{%- endform -%}

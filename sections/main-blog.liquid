@@ -1,0 +1,267 @@
+{%- liquid
+  assign section_style = section.settings.section_style
+  assign container_size = section.settings.container_size
+  assign show_rss_icon = section.settings.show_rss_icon
+  assign number_of_rows = section.settings.number_of_rows
+  assign articles_per_row = section.settings.articles_per_row
+  assign color_scheme = section.settings.color_scheme
+
+  assign limit = articles_per_row | times: number_of_rows
+
+  capture block_width
+    render 'section-block-width', section: section, type: 'article'
+  endcapture
+-%}
+
+<div class="blog-section blog-post-menu section section--{{ section_style }} color-{{ color_scheme }} color-text">
+  <div class="{{ container_size }}">
+    <!-- Main blog content -->
+    <div class="col-12">
+      <div class="row gy-3 text-center mb-4">
+        <div>
+          {%- if current_tags -%}
+            <h1 class="h2">{{ blog.title | link_to: blog.url }} &mdash; {{ current_tags.first }}</h1>
+          {%- else -%}
+            <h1 class="h2 page-title">{{ blog.title }}</h1>
+          {%- endif -%}
+        </div>
+
+        {%- if show_rss_icon -%}
+          <a href="{{ shop.url }}{{ blog.url }}.atom" title="{{ 'sections.main_blog.rss_feed' | t }}" class="h1">
+            <span class="{{ settings.icon }} icon--lg" translate="no" aria-hidden="true">rss_feed</span>
+          </a>
+        {%- endif -%}
+
+        <div class="blog-post-menu__search-sort-container">
+          <div class="blog-post-menu__search-input">
+            <span class="blog-post-menu__icon {{ settings.icon }}" translate="no" aria-hidden="true">search</span>
+            <input type="text" id="blog-post-menu-search" placeholder="{{ 'general.search.placeholder' | t }}">
+          </div>
+        </div>
+
+        <div class="blog-post-menu__filters-sort-container">
+          {%- if section.settings.enable_tag_filtering -%}
+            <div class="blog-post-menu__filters-dropdown">
+              <button class="btn btn--secondary blog-post-menu__filters-dropdown-toggle">
+                <span class="blog-post-menu__text">{{ 'sections.main_blog.filters' | t }}</span>
+                <span class="blog-post-menu__icon {{ settings.icon }}" translate="no" aria-hidden="true"
+                  >filter_list</span
+                >
+              </button>
+
+              <div class="blog-post-menu__filters-dropdown-content">
+                {% assign has_filter_blocks = false %}
+
+                {% for block in section.blocks %}
+                  {% if block.type == 'filter' and block.settings.tag != blank %}
+                    {% assign has_filter_blocks = true %}
+
+                    <label class="blog-post-menu__filter-option">
+                      <input type="checkbox" name="filter" value="{{ block.settings.tag }}">
+                      <span>{{ block.settings.filter_name }}</span>
+                    </label>
+                  {% endif %}
+                {% endfor %}
+
+                {% unless has_filter_blocks %}
+                  <div class="blog-post-menu__filter-placeholder">
+                    <span>{{ 'sections.main_blog.no_filters_added' | t }}</span>
+                  </div>
+                {% endunless %}
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.enable_sorting -%}
+            <div class="blog-post-menu__sort-dropdown">
+              <select id="sortBy" class="blog-post-menu__sort-select">
+                <option value="" disabled selected>{{ 'sections.main_blog.sort_by' | t }}</option>
+                <option value="alphabetically_az">{{ 'sections.main_blog.sort_options.alphabetically_az' | t }}</option>
+                <option value="alphabetically_za">{{ 'sections.main_blog.sort_options.alphabetically_za' | t }}</option>
+                <option value="date_desc">{{ 'sections.main_blog.sort_options.date_desc' | t }}</option>
+                <option value="date_asc">{{ 'sections.main_blog.sort_options.date_asc' | t }}</option>
+                <option value="author">{{ 'sections.main_blog.sort_options.author' | t }}</option>
+                <option value="comments">{{ 'sections.main_blog.sort_options.comments' | t }}</option>
+              </select>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div id="blog-post-menu-selected-filters" class="blog-post-menu__selected-filters mb-4"></div>
+
+      <div>
+        {%- paginate blog.articles by limit -%}
+          <div class="row gy-4 dbtfy-blog-grid" data-show-tags-count="{{ section.settings.show_tags_count }}">
+            {%- for article in blog.articles -%}
+              {%-
+                render 'article-grid-item',
+                article: article,
+                blog: blog,
+                width: block_width,
+                number_of_rows: number_of_rows,
+                images_loading_type: 'lazy',
+                data_tags: article.tags | join: ','
+              -%}
+            {%- endfor -%}
+          </div>
+
+          {%- render 'pagination', paginate: paginate -%}
+        {%- endpaginate -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main_blog.name",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_style",
+      "label": "t:sections.main_blog.settings.section_style.label",
+      "default": "blank",
+      "options": [
+        {
+          "value": "blank",
+          "label": "t:sections.main_blog.settings.section_style.options.blank.label"
+        },
+        {
+          "value": "default",
+          "label": "t:sections.main_blog.settings.section_style.options.default.label"
+        },
+        {
+          "value": "border",
+          "label": "t:sections.main_blog.settings.section_style.options.border.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container_size",
+      "label": "t:sections.main_blog.settings.container_size.label",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.main_blog.settings.container_size.options.container.label"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.main_blog.settings.container_size.options.container_fluid.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rss_icon",
+      "label": "t:sections.main_blog.settings.show_rss_icon.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "number_of_rows",
+      "label": "t:sections.main_blog.settings.number_of_rows.label",
+      "default": "6",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "6",
+          "label": "6"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "articles_per_row",
+      "label": "t:sections.main_blog.settings.articles_per_row.label",
+      "default": "3",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_blog.settings.header__1.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_blog.settings.color_scheme.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_blog.settings.header__2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_tag_filtering",
+      "label": "t:sections.main_blog.settings.enable_tag_filtering.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "t:sections.main_blog.settings.enable_sorting.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags_count",
+      "label": "t:sections.main_blog.settings.show_tags_count.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "filter",
+      "name": "t:sections.main_blog.blocks.filter.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "filter_name",
+          "label": "t:sections.main_blog.blocks.filter.settings.filter_name.label",
+          "default": "t:sections.main_blog.blocks.filter.settings.filter_name.default"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "t:sections.main_blog.blocks.filter.settings.tag.label"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

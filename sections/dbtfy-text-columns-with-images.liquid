@@ -1,0 +1,595 @@
+{%- liquid
+  assign show_on_desktop = section.settings.show_on_desktop
+  assign show_on_mobile = section.settings.show_on_mobile
+  assign section_style = section.settings.section_style
+  assign container_size = section.settings.container_size
+  assign heading = section.settings.heading
+  assign subheading = section.settings.subheading
+  assign images_loading_type = section.settings.images_loading_type
+  assign color_scheme = section.settings.color_scheme
+  assign heading_size = section.settings.heading_size
+  assign image_size = section.settings.image_size
+  assign button_style = section.settings.button_style
+  assign columns = section.settings.desktop_columns
+  assign display_type = section.settings.display_type
+
+  assign show_dots = section.settings.show_dots
+  assign show_arrows = section.settings.show_arrows
+  assign enable_autoplay = section.settings.enable_autoplay
+  assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+  assign slides_amount = section.settings.slides_amount
+  assign slides_amount_mobile = section.settings.slides_amount_mobile
+
+  case heading_size
+    when 'small'
+      assign heading_size_class = 'h3'
+
+    when 'medium'
+      assign heading_size_class = 'h2'
+
+    when 'large'
+      assign heading_size_class = 'h1'
+  endcase
+
+  case columns
+    when 1
+      assign grid_item_width = 'col-12 text-center'
+
+    when 2
+      assign grid_item_width = 'col-md-6'
+
+    when 3
+      assign grid_item_width = 'col-md-4'
+
+    when 4
+      assign grid_item_width = 'col-md-6 col-lg-3'
+
+    when 5
+      assign grid_item_width = ''
+  endcase
+
+  unless grid_item_width
+    assign grid_item_width = 'col-md-6 col-lg-4'
+  endunless
+
+  capture visibility_class
+    render 'section-visibility-class', show_on_mobile: show_on_mobile, show_on_desktop: show_on_desktop
+  endcapture
+
+  capture block_width
+    render 'section-block-width', section: section, type: 'block'
+  endcapture
+
+  assign enable_slider = false
+
+  if display_type == 'carousel' and section.blocks.size > 1
+    assign enable_slider = true
+  endif
+-%}
+<!-- prettier-ignore -->
+{%- capture section_settings -%}
+{
+  "enableSlider": {{ enable_slider | json }},
+  "showDots": {{ show_dots | json }},
+  "showArrows": {{ show_arrows | json }},
+  "enableAutoplay": {{ enable_autoplay | json }},
+  "autoplaySpeed": {{ autoplay_speed | json }},
+  "slidesToShow": {{ slides_amount | json }},
+  "slidesToShowMobile": {{ slides_amount_mobile | json }}
+}
+{%- endcapture -%}
+
+<style>
+  [data-section-id='{{ section.id }}'] .media.icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  [data-section-id='{{ section.id }}'] .slick-initialized.slick-slider {
+    margin-top: 30px;
+  }
+</style>
+
+{%- if section.blocks.size > 0 -%}
+  <!-- prettier-ignore -->
+  <div 
+    class="section section--{{ section_style }} {{ visibility_class }} color-{{ color_scheme }}"
+    data-section-id="{{ section.id }}"
+    data-section-settings="{{ section_settings | escape }}"
+  >
+    <div class="{{ container_size }}">
+      {%- render 'section-header', heading: heading, subheading: subheading, heading_size_class: heading_size_class -%}
+
+      <div
+        class="row gy-4{% if columns == 5 %} row-cols-lg-5{% endif %}{% if enable_slider %} slick js-slider{% endif %}"
+        data-slides-count="{{ section.blocks.size }}"
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign image = block.settings.image
+            assign image_link = block.settings.image_link
+            assign icon = block.settings.icon
+            assign heading = block.settings.heading
+            assign subheading = block.settings.subheading
+            assign text = block.settings.text
+            assign text_alignment = block.settings.text_alignment
+
+            assign button_label = block.settings.button_label
+            assign button_link = block.settings.button_link
+          -%}
+
+          <div class="{{ text_alignment }} {{ grid_item_width }}" {{ block.shopify_attributes }}>
+            <div class="row gy-3">
+              <div class="col-12">
+                <div
+                  class="media-wrapper media-wrapper--cover media-wrapper--{{ image_size }}"
+                  {% if image_size == blank %}
+                    style="padding-top: {{ 1 | divided_by: image.aspect_ratio | times: 100 }}%; {%- if icon != blank -%} min-height: 70px;{% endif %}"
+                  {% endif %}
+                >
+                  {%- if image != blank -%}
+                    {%- liquid
+                      assign height_ratio = 100 | divided_by: section.blocks.size
+                      assign width_ratio = 100.0 | divided_by: height_ratio
+                      assign maximum_image_width = settings.page_container_width | divided_by: width_ratio
+                    -%}
+
+                    {%- capture sizes -%}(max-width: 768px) 100vw, min({{ maximum_image_width | ceil }}px, {{ height_ratio }}vw){% endcapture %}
+
+                    {%- if image_link != blank -%}
+                      <a href="{{ image_link }}" aria-label="Click to open {{ image_link }} link">
+                    {%- endif -%}
+
+                    {{-
+                      image
+                      | image_url: width: image.width
+                      | image_tag:
+                        loading: images_loading_type,
+                        sizes: sizes,
+                        widths: '300,400,500,600,700,800,1000,1200,1400,1600,1800,2000,2200,2400,2600',
+                        class: 'media'
+                    -}}
+
+                    {%- if image_link != blank -%}
+                      </a>
+                    {%- endif -%}
+
+                  {%- elsif icon != blank -%}
+                    <span
+                      class="{{ settings.icon }} media icon icon--xl text-secondary"
+                      translate="no"
+                      aria-hidden="true"
+                    >
+                      {{- icon -}}
+                    </span>
+                  {%- else -%}
+                    {{- 'image' | placeholder_svg_tag: 'media placeholder-svg' -}}
+                  {%- endif -%}
+                </div>
+              </div>
+
+              {%- if heading != blank -%}
+                <h3 class="h4">{{ heading | escape }}</h3>
+              {%- endif -%}
+
+              {%- if subheading != blank -%}
+                <p class="h6 text-md">{{ subheading | escape }}</p>
+              {%- endif -%}
+
+              {%- if text != blank -%}
+                <div class="rte">{{ text }}</div>
+              {%- endif -%}
+
+              {%- if button_label != blank and button_link != blank -%}
+                <div>
+                  <a href="{{ button_link }}" class="btn {{ button_style }}">{{ button_label }}</a>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.text_columns_with_images.name",
+  "class": "dbtfy-text-columns-with-images",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["custom.widgets", "custom.general", "header"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.addons.help_center.header.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:general.addons.help_center.text_columns_with_images.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:general.addons.help_center.enable_disable.content"
+    },
+    {
+      "type": "header",
+      "content": "t:general.addons.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_desktop",
+      "label": "t:general.settings.show_on_desktop.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "t:general.settings.show_on_mobile.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "section_style",
+      "label": "t:general.settings.section_style.label",
+      "default": "blank",
+      "options": [
+        {
+          "value": "blank",
+          "label": "t:general.settings.section_style.options__1.label"
+        },
+        {
+          "value": "default",
+          "label": "t:general.settings.section_style.options__2.label"
+        },
+        {
+          "value": "border",
+          "label": "t:general.settings.section_style.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "container_size",
+      "label": "t:general.settings.container_size.label",
+      "default": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:general.settings.container_size.options__2.label"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:general.settings.container_size.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:general.settings.heading.label",
+      "default": "Featured columns"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:general.settings.subheading.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "medium",
+      "label": "Heading size"
+    },
+    {
+      "type": "select",
+      "id": "image_size",
+      "label": "Image size",
+      "default": "sm",
+      "options": [
+        {
+          "label": "Landscape",
+          "value": "xs"
+        },
+        {
+          "label": "Square",
+          "value": "sm"
+        },
+        {
+          "label": "Portrait",
+          "value": "md"
+        },
+        {
+          "label": "Original",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:general.settings.button_style.label",
+      "default": "btn--primary",
+      "options": [
+        {
+          "value": "",
+          "label": "t:general.settings.button_style.options__1.label"
+        },
+        {
+          "value": "btn--primary",
+          "label": "t:general.settings.button_style.options__2.label"
+        },
+        {
+          "value": "btn--outline-primary",
+          "label": "t:general.settings.button_style.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "desktop_columns",
+      "label": "Columns",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "display_type",
+      "label": "Display type",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Carousel"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "t:sections.logo_list.settings.show_dots.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "t:sections.logo_list.settings.enable_autoplay.label",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 3,
+      "max": 10,
+      "label": "t:sections.logo_list.settings.autoplay_speed.label",
+      "default": 5,
+      "unit": "s"
+    },
+    {
+      "type": "range",
+      "id": "slides_amount",
+      "min": 2,
+      "max": 5,
+      "label": "Slides to show on desktop",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "slides_amount_mobile",
+      "min": 1,
+      "max": 3,
+      "label": "Slides to show on mobile",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "t:general.settings.images_loading.header.content"
+    },
+    {
+      "type": "select",
+      "id": "images_loading_type",
+      "label": "t:general.settings.images_loading.images_loading_type.label",
+      "default": "lazy",
+      "options": [
+        {
+          "value": "lazy",
+          "label": "t:general.settings.images_loading.images_loading_type.options__1.label"
+        },
+        {
+          "value": "eager",
+          "label": "t:general.settings.images_loading.images_loading_type.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "t:sections.text_columns_with_images.blocks.column.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:general.settings.image.label"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "t:general.settings.image_link.label"
+        },
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "t:general.settings.icon.label",
+          "info": "t:general.settings.icon.info"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:general.settings.heading.label",
+          "default": "Add a title or tagline"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "t:general.settings.subheading.label"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:general.settings.text.label",
+          "default": "<p>Use this text to describe what makes your store stand out from others and why customers should buy from you.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "t:general.settings.text_alignment.label",
+          "default": "text-center",
+          "options": [
+            {
+              "value": "text-start",
+              "label": "t:general.settings.text_alignment.options__1.label"
+            },
+            {
+              "value": "text-center",
+              "label": "t:general.settings.text_alignment.options__2.label"
+            },
+            {
+              "value": "text-end",
+              "label": "t:general.settings.text_alignment.options__3.label"
+            },
+            {
+              "value": "text-justify",
+              "label": "t:general.settings.text_alignment.options__4.label"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:general.settings.button_label.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:general.settings.button_link.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.text_columns_with_images.presets.name",
+      "category": "t:sections.text_columns_with_images.presets.category",
+      "blocks": [
+        {
+          "type": "column",
+          "settings": {
+            "image": "",
+            "image_link": "",
+            "icon": "",
+            "heading": "Discover What's New",
+            "subheading": "New Arrivals",
+            "text": "<p>Our latest collection has landed! Explore our new arrivals and discover your new favorites.</p>",
+            "text_alignment": "text-center",
+            "button_label": "Shop Now",
+            "button_link": ""
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "image": "",
+            "image_link": "",
+            "icon": "",
+            "heading": "Seasonal Favorites",
+            "subheading": "Bestsellers",
+            "text": "<p>Jump into our Seasonal Collection and discover the must-have items everyone's talking about.</p>",
+            "text_alignment": "text-center",
+            "button_label": "Shop Now",
+            "button_link": ""
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "image": "",
+            "image_link": "",
+            "icon": "",
+            "heading": "Meet Your Perfect Match",
+            "subheading": "Signature Collection",
+            "text": "<p>Find the perfect pieces that speak to your taste and elevate your everyday look.</p>",
+            "text_alignment": "text-center",
+            "button_label": "Shop Now",
+            "button_link": ""
+          }
+        }
+      ],
+      "settings": {
+        "show_on_desktop": true,
+        "show_on_mobile": true,
+        "section_style": "blank",
+        "container_size": "container",
+        "heading": "Explore Our Collections",
+        "subheading": "From timeless classics to trendy must-haves, find it all here.",
+        "heading_size": "medium",
+        "image_size": "sm",
+        "button_style": "btn--primary",
+        "desktop_columns": 3,
+        "display_type": "grid",
+        "show_dots": true,
+        "show_arrows": true,
+        "enable_autoplay": true,
+        "autoplay_speed": 5,
+        "slides_amount": 3,
+        "slides_amount_mobile": 1,
+        "images_loading_type": "lazy",
+        "color_scheme": ""
+      }
+    }
+  ]
+}
+{% endschema %}

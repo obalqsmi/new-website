@@ -1,0 +1,321 @@
+{%- liquid
+  assign badge_type = settings.trust_badges_badge_type
+
+  assign heading = settings.trust_badges_heading
+  assign subheading = settings.trust_badges_subheading
+  assign info_text = settings.trust_badges_text
+
+  assign heading_size = settings.trust_badges_heading_size
+  assign subheading_size = settings.trust_badges_subheading_size
+  assign info_size = settings.trust_badges_text_size
+
+  assign enable_card = settings.trust_badges_enable_card
+  assign enable_gray_logos = settings.trust_badges_enable_gray_logos
+
+  assign is_background_different = false
+  assign section_background_color = section_color_scheme.settings.background
+  assign block_color_scheme = settings.trust_badges_color_scheme_footer
+
+  if position == 'product'
+    assign block_color_scheme = settings.trust_badges_color_scheme_product
+  elsif position == 'cart'
+    assign block_color_scheme = settings.trust_badges_color_scheme_cart
+  endif
+
+  assign block_background_color = block_color_scheme.settings.background
+
+  if position == 'cart'
+    assign block_background_color = block_color_scheme.settings.accent_background
+  endif
+
+  if section_background_color != block_background_color
+    assign is_background_different = true
+  endif
+-%}
+
+{% capture trust_badges_list %}
+  <div class="row row--sm row-cols-md-auto {{ badge_alignment }}">
+    {%- for index in (1..10) -%}
+      {%- liquid
+        assign badge_heading_key = 'trust_badges_title_' | append: index
+        assign badge_text_key = 'trust_badges_text_' | append: index
+        assign badge_image_key = 'trust_badges_image_' | append: index
+
+        assign badge_heading = settings[badge_heading_key]
+        assign badge_text = settings[badge_text_key]
+        assign badge_image = settings[badge_image_key]
+
+        assign badge_image_class = 'image'
+
+        if enable_gray_logos
+          assign badge_image_class = badge_image_class | append: ' image--gray'
+        endif
+      -%}
+
+      {%- render 'dbtfy-logo-list', heading: badge_heading, text: badge_text, image: badge_image, enable_card: enable_card, enable_gray_logos: enable_gray_logos, logo_size: logo_size, logo_size_mobile: logo_size_mobile, image_class: badge_image_class, open_link_in_new_tab: open_link_in_new_tab, hide_empty: true, badge_type: badge_type, text_alignment: badge_alignment -%}
+    {%- endfor -%}
+  </div>
+{% endcapture %}
+
+<div class="dbtfy-trust-badge text-{{ badge_alignment }} color-{{ block_color_scheme }} color-bg color-text">
+  <style hidden>
+   
+    .trust-badge-heading {
+      font-size: {{ heading_size }}px;
+    }
+
+    .trust-badge-subheading {
+      font-size: {{ subheading_size }}px;
+    }
+
+    .info-text{
+      font-size: {{ info_size }}px;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+    {% endif %} {
+      width: 100%;
+      max-width: {{ logo_size }}px;
+      max-height: initial;
+      object-fit: contain;
+      margin: 0 auto;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo
+    {% endif %} {
+      width: auto !important;
+    }
+
+    {% if badge_type == 'single_block' %}
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo
+    {% endif %} {
+      width: 100% !important;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__body,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .card,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__body
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__body,
+    .cart .dbtfy-trust-badge .card
+    {% endif %} {
+      display: flex;
+      flex-direction: row;
+      flex: inherit !important;
+      gap: 16px;
+      width: 100%;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+    .dbtfy-logo-list__content-wrapper,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+    .cart .dbtfy-logo-list__content-wrapper,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+    {% endif %} {
+      width: 100% !important;
+    }
+
+    @media screen and (max-width: 768px) {
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo
+      {% endif %} {
+        width: 100% !important;
+      }
+
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+      {% endif %} {
+        width: 100% !important;
+      }
+
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+      {% endif %} {
+        max-width: {{ logo_size_mobile }}px !important;
+        max-height: initial;
+      }
+
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      .car .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper
+      {% endif %} {
+        width: {{ logo_size_mobile }}px;
+      }
+    }
+    {% endif  %}
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper
+    {% endif %} {
+      width: {{ logo_size }}px;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo a
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo a
+    {% endif %} {
+      max-width: 100%;
+    }
+
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+    [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+    {% if position == 'cart' %},
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+    .cart .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+    {% endif %} {
+      width: {{ logo_size }}px;
+      max-width: 100%;
+      word-break: break-word;
+      margin: 0 auto;
+    }
+
+    @media screen and (max-width: 768px) {
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo .rte,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo h3
+      {% endif %} {
+        width: {{ logo_size_mobile }}px;
+      }
+
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__logo
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__logo
+      {% endif %} {
+        width: {{ logo_size_mobile }}px;
+      }
+
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      [data-section-id='{{ section.id }}'] .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+      {% if position == 'cart' %},
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__icon-wrapper svg,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper,
+      .cart .dbtfy-trust-badge .dbtfy-logo-list__image-wrapper img
+      {% endif %} {
+        max-width: {{ logo_size_mobile }}px !important;
+        max-height: initial;
+      }
+    }
+
+    .dbtfy-trust-badge {
+      border-radius: {{ settings.trust_badges_border_radius }}px;
+    }
+
+    {% if position == 'product' %}
+      .product .dbtfy-trust-badge {
+        {% if is_background_different %}
+          padding: 1rem;
+        {% endif %}
+        {% if settings.trust_badges_add_border %}
+          padding: 1rem;
+          border: var(--borders);
+        {% endif %}
+      }
+    {% elsif position == 'cart' %}
+      .cart .dbtfy-trust-badge {
+        {% if is_background_different %}
+          padding: 1rem;
+        {% endif %}
+        {% if settings.trust_badges_add_border %}
+          padding: 1rem;
+          border: var(--borders);
+        {% endif %}
+      }
+    {% else %}
+      .footer .dbtfy-trust-badge {
+        {% if is_background_different %}
+          padding: 1rem;
+        {% endif %}
+        {% if settings.trust_badges_add_border %}
+          padding: 1rem;
+          border: var(--borders);
+        {% endif %}
+      }
+    {% endif %}
+  </style>
+
+  {%- if enable_heading or enable_subheading -%}
+    {%- if heading != blank or subheading != blank -%}
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="row gy-2-5{% if container == 'container-full' %} px-2-5{% endif %}">
+            {%- if enable_heading -%}
+              {%- if heading != blank -%}
+                <div>
+                  <h2 class="trust-badge-heading h3{% if enlarge %} page-title{% endif %}">{{ heading | escape }}</h2>
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+    
+            {%- if enable_subheading -%}
+              {%- if subheading != blank -%}
+                <p class="trust-badge-subheading sm:text-md text-break-all rte">{{ subheading }}</p>
+              {%- endif -%}
+           {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- case badge_type -%}
+    {%- when 'icon_blocks' -%}
+      {{- trust_badges_list -}}
+
+    {%- when 'single_block' -%}
+      {{- trust_badges_list -}}
+
+    {%- when 'payment_options' -%}
+      {%- render 'payment-icons', classes: badge_alignment -%}
+
+  {%- endcase -%}
+
+  {%- if enable_info_text -%}
+    {%- if info_text != blank -%}
+      <div class="pt-2 info-text">
+        {{- info_text -}}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+</div>

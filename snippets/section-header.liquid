@@ -1,0 +1,17 @@
+{%- if heading != blank or subheading != blank -%}
+  <div class="section-header row mb-4{% if content_alignment_class %} {{ content_alignment_class }}{% endif %}">
+    <div class="col-md-8{% unless no_offset %} offset-md-2{% endunless %}">
+      <div class="row gy-3{% if container == 'container-full' %} px-2-5{% endif %} {% if content_alignment_class %} {{ content_alignment_class }}{% else %} text-center{% endif %}">
+        {%- if heading != blank -%}
+          <div>
+            <h2 class="section-heading{% if heading_size_class %} {{ heading_size_class }}{% else %} h2{% endif %}{% if enlarge %} page-title{% endif %}">{{ heading | escape }}</h2>
+          </div>
+        {%- endif -%}
+
+        {%- if subheading != blank -%}
+          <p class="section-subheading sm:text-lg text-break-all rte">{{ subheading }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

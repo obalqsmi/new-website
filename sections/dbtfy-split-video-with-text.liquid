@@ -1,0 +1,538 @@
+{% liquid
+    assign show_on_desktop = section.settings.show_on_desktop
+    assign show_on_mobile = section.settings.show_on_mobile
+    assign container_size = section.settings.container_size
+    assign text_section_radius = section.settings.text_section_radius
+    assign section_style = section.settings.section_style
+    assign video = section.settings.video
+    assign video_link = section.settings.video_link
+    assign enable_autoplay = section.settings.enable_autoplay
+    assign enable_controls = section.settings.enable_controls
+    assign video_height = section.settings.video_height
+    assign video_section_radius = section.settings.video_section_radius
+    assign video_loading_type = section.settings.video_loading_type
+    assign video_position_desktop = section.settings.video_position_desktop
+    assign video_position_mobile = section.settings.video_position_mobile
+    assign text_alignment = section.settings.text_alignment
+    assign text_layout = section.settings.text_layout
+    assign top_padding = section.settings.top_padding
+    assign bottom_padding = section.settings.bottom_padding
+    assign color_scheme = section.settings.color_scheme
+
+    capture visibility_class
+        render 'section-visibility-class', show_on_mobile: show_on_mobile, show_on_desktop: show_on_desktop
+    endcapture
+
+    assign video_type = ''
+    if video_link contains 'youtube.com' or video_link contains 'youtu.be'
+        assign video_type = 'youtube'
+    elsif video_link contains 'vimeo.com'
+        assign video_type = 'vimeo'
+    elsif video_link contains 'dailymotion.com'
+        assign video_type = 'dailymotion'
+    endif
+
+    if video != blank
+        assign video_type = 'video'
+    endif
+
+    if container_size == 'container-full'
+        assign top_padding = 0
+        assign bottom_padding = 0
+    endif
+%}
+
+<style>
+    .section[data-section-id="{{ section.id }}"] {
+        padding-top: {{ top_padding }}px;
+        padding-bottom: {{ bottom_padding }}px;
+    }
+
+    .section[data-section-id="{{ section.id }}"] .media-wrapper--video {
+        border-radius: {{ video_section_radius }}px;
+    }
+
+    .section[data-section-id="{{ section.id }}"] .dbtfy-split-video-text__overlap {
+        border-radius: {{ text_section_radius }}px;
+    }
+</style>
+
+{% if section.blocks.size > 0 %}
+    <div class="section section--{{ section_style }}{% if container_size == 'container-full' %} section--no-spacing{% endif %} {{ visibility_class }} color-{{ color_scheme }}" data-section-id="{{ section.id }}">
+        <div class="{{ container_size }}">
+            <div class="row {% if video_position_mobile == 'top' %}flex-column{% else %}flex-column-reverse{% endif %} {% if video_position_desktop == 'left' %}flex-md-row{% else %}flex-md-row-reverse{% endif %}">
+                <div class="col-12 col-md-6 dbtfy-split-video-text__video {% if container_size == 'container-full' %}px-3 px-md-0{% else %}pe-md-3{% endif %}">
+                    <div class="media-wrapper media-wrapper--video media--{{ video_height }}" data-loading-type="{{ video_loading_type }}" data-type="{{ video_type }}" data-autoplay="{% if enable_autoplay %}1{% else %}0{% endif %}" data-controls="{% if enable_controls %}1{% else %}0{% endif %}" data-url="{{ video_link }}">
+                        {% if video != blank %}
+                            <video {% if enable_autoplay %}autoplay muted{% else %}class="hidden"{% endif %} loop playsinline {% if enable_controls %}controls{% endif %}>
+                                {%- for source in video.sources -%}
+                                  <source data-src="{{ source.url }}" type="{{ source.mime_type }}">
+                                {%- endfor -%}
+                            </video>
+                            {% unless enable_autoplay %}
+                                {% unless video.preview_image == blank %}
+                                    {{ video.preview_image.src | image_url: width: 600 | image_tag }}
+                                {% endunless %}
+                                <span class="dbtfy-video-play-btn btn">
+                                    <span class="{{ settings.icon }}" translate="no">play_arrow</span>
+                                </span>
+                            {% endunless %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 dbtfy-split-video-text__rte  py-3 py-md-0 {% if container_size == 'container-full' %}px-md-5 px-3{% else %}ps-md-3{% endif %}">
+                    <div class="d-flex flex-column align-items-{{ text_alignment }} text-{{ text_alignment }} justify-content-center h-100 dbtfy-split-video-text__{{ text_layout }} dbtfy-split-video-text__desktop-{{ video_position_desktop }} dbtfy-split-video-text__mobile-{{ video_position_mobile }}">
+                        {% for block in section.blocks %}
+                            {% case block.type %}
+                                {% when 'heading' %}
+                                    {% if block.settings.heading != blank %}
+                                        {%- liquid
+                                            assign heading = block.settings.heading
+                                            assign font_size = block.settings.font_size
+                                        -%}
+                                        <h2 class="dbtfy-split-video-text__rte-heading h1 mb-3" style="font-size: {{ font_size }}px">
+                                            {{ heading }}
+                                        </h2>
+                                    {% endif %}
+                                {% when 'text' %}
+                                    {% if block.settings.text != blank %}
+                                        {%- liquid
+                                            assign text = block.settings.text
+                                        -%}
+                                        <div class="dbtfy-split-video-text__rte-text rte mb-3">
+                                            {{ text }}
+                                        </div>
+                                    {% endif %}
+                            {% endcase %}
+                        {% endfor %}
+
+                        {% assign button_blocks = section.blocks | where: 'type', 'button' %}
+
+                        {% if button_blocks.size > 0 %}
+                            <div class="dbtfy-split-video-text__button">
+                                {% for button in button_blocks %}
+                                    {% liquid
+                                        assign button_text = button.settings.button_text
+                                        assign button_link = button.settings.button_link
+                                        assign button_style = button.settings.button_style
+                                        assign enable_icon = button.settings.enable_icon
+                                        assign icon = button.settings.icon
+                                        assign custom_icon = button.settings.custom_icon
+                                    %}
+
+                                    {% if button_text != blank %}
+                                        <a class="btn {{ button_style }}" href="{{ button_link }}" {% if button_link == blank %}disabled{% endif %}>
+                                            <span class="btn__text">
+                                                {% capture icon_content %}<span class="{{ settings.icon }} icon" translate="no">{{ icon }}</span>{% endcapture %}
+                                                {% capture custom_icon_content %}
+                                                    <span class="d-inline-block me-1" translate="no">
+                                                        {{ custom_icon | image_url: width: 16 | image_tag: loading: 'eager', sizes: '100vw', widths: '300,400,500,600,700,800,1000,1200,1400,1600,1800,2000,2200,2400,2600' }}
+                                                    </span>
+                                                {% endcapture %}
+                                                {% liquid
+                                                    if enable_icon
+                                                        if custom_icon != blank
+                                                            echo custom_icon_content
+                                                        elsif icon != blank
+                                                            echo icon_content
+                                                        endif
+                                                    endif
+                                                %}
+                                                {{ button_text }}
+                                            </span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% schema %}
+{
+    "name": "t:sections.addons.split_video_text.name",
+    "class": "dbtfy-split-video-text",
+    "disabled_on": {
+      "groups": [
+        "custom.widgets",
+        "custom.general",
+        "header"
+      ]
+    },
+    "settings": [
+        {
+            "type": "paragraph",
+            "content": "t:sections.addons.split_video_text.settings.paragraph__1.content"
+        },
+        {
+            "type": "header",
+            "content": "t:general.addons.help_center.header.content"
+        },
+        {
+            "type": "paragraph",
+            "content": "t:general.addons.help_center.split_video_text.content"
+        },
+        {
+            "type": "paragraph",
+            "content": "t:general.addons.help_center.enable_disable.content"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_on_desktop",
+            "label": "t:general.settings.show_on_desktop.label",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "show_on_mobile",
+            "label": "t:general.settings.show_on_mobile.label",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "container_size",
+            "label": "t:general.settings.container_size.label",
+            "default": "container",
+            "options": [
+              {
+                "value": "container",
+                "label": "t:general.settings.container_size.options__2.label"
+              },
+              {
+                "value": "container-full",
+                "label": "t:general.settings.container_size.options__4.label"
+              }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "text_section_radius",
+            "label": "t:sections.addons.split_video_text.settings.text_section_radius.label",
+            "default": 12,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "unit": "px"
+        },
+        {
+            "type": "select",
+            "id": "section_style",
+            "label": "t:general.settings.section_style.label",
+            "default": "blank",
+            "options": [
+              {
+                "value": "blank",
+                "label": "t:general.settings.section_style.options__1.label"
+              },
+              {
+                "value": "default",
+                "label": "t:general.settings.section_style.options__2.label"
+              },
+              {
+                "value": "border_top",
+                "label": "t:general.settings.section_style.options__3.label"
+              },
+              {
+                "value": "border_bottom",
+                "label": "t:general.settings.section_style.options__4.label"
+              },
+              {
+                "value": "border",
+                "label": "t:general.settings.section_style.options__5.label"
+              }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "t:sections.addons.split_video_text.settings.header__1.content"
+        },
+        {
+            "type": "video",
+            "id": "video",
+            "label": "t:sections.addons.split_video_text.settings.video.label",
+            "info": "t:sections.addons.split_video_text.settings.video.info"
+        },
+        {
+            "type": "text",
+            "id": "video_link",
+            "label": "t:sections.addons.split_video_text.settings.video_link.label",
+            "info": "t:sections.addons.split_video_text.settings.video_link.info",
+            "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_autoplay",
+            "label": "t:sections.addons.split_video_text.settings.enable_autoplay.label",
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_controls",
+            "label": "t:sections.addons.split_video_text.settings.enable_controls.label",
+            "default": false
+        },
+        {
+            "type": "select",
+            "id": "video_height",
+            "label": "t:sections.addons.split_video_text.settings.video_height.label",
+            "default": "adapt",
+            "options": [
+                {
+                    "value": "adapt",
+                    "label": "t:sections.addons.split_video_text.settings.video_height.options__1.label"
+                },
+                {
+                    "value": "large",
+                    "label": "t:sections.addons.split_video_text.settings.video_height.options__2.label"
+                },
+                {
+                    "value": "medium",
+                    "label": "t:sections.addons.split_video_text.settings.video_height.options__3.label"
+                },
+                {
+                    "value": "small",
+                    "label": "t:sections.addons.split_video_text.settings.video_height.options__4.label"
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "video_section_radius",
+            "label": "t:sections.addons.split_video_text.settings.video_section_radius.label",
+            "default": 0,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "unit": "px"
+        },
+        {
+            "type": "select",
+            "id": "video_loading_type",
+            "label": "t:sections.addons.split_video_text.settings.video_loading_type.label",
+            "default": "lazy",
+            "options": [
+                {
+                    "value": "lazy",
+                    "label": "t:sections.addons.split_video_text.settings.video_loading_type.options__1.label"
+                },
+                {
+                    "value": "eager",
+                    "label": "t:sections.addons.split_video_text.settings.video_loading_type.options__2.label"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "video_position_desktop",
+            "label": "t:sections.addons.split_video_text.settings.video_position_desktop.label",
+            "default": "right",
+            "options": [
+                {
+                    "value": "left",
+                    "label": "t:sections.addons.split_video_text.settings.video_position_desktop.options__1.label"
+                },
+                {
+                    "value": "right",
+                    "label": "t:sections.addons.split_video_text.settings.video_position_desktop.options__2.label"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "video_position_mobile",
+            "label": "t:sections.addons.split_video_text.settings.video_position_mobile.label",
+            "default": "top",
+            "options": [
+                {
+                    "value": "top",
+                    "label": "t:sections.addons.split_video_text.settings.video_position_mobile.options__1.label"
+                },
+                {
+                    "value": "bottom",
+                    "label": "t:sections.addons.split_video_text.settings.video_position_mobile.options__2.label"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "text_alignment",
+            "label": "t:sections.addons.split_video_text.settings.text_alignment.label",
+            "default": "start",
+            "options": [
+                {
+                    "value": "start",
+                    "label": "t:sections.addons.split_video_text.settings.text_alignment.options__1.label"
+                },
+                {
+                    "value": "center",
+                    "label": "t:sections.addons.split_video_text.settings.text_alignment.options__2.label"
+                },
+                {
+                    "value": "end",
+                    "label": "t:sections.addons.split_video_text.settings.text_alignment.options__3.label"
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "text_layout",
+            "label": "t:sections.addons.split_video_text.settings.text_layout.label",
+            "default": "default",
+            "options": [
+                {
+                    "value": "default",
+                    "label": "t:sections.addons.split_video_text.settings.text_layout.options__1.label"
+                },
+                {
+                    "value": "overlap",
+                    "label": "t:sections.addons.split_video_text.settings.text_layout.options__2.label"
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": "t:sections.addons.split_video_text.settings.header__2.content"
+        },
+        {
+            "type": "range",
+            "id": "top_padding",
+            "label": "t:sections.addons.split_video_text.settings.top_padding.label",
+            "default": 32,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "unit": "px"
+        },
+        {
+            "type": "range",
+            "id": "bottom_padding",
+            "label": "t:sections.addons.split_video_text.settings.bottom_padding.label",
+            "default": 32,
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "unit": "px"
+        },
+        {
+            "type": "color_scheme",
+            "id": "color_scheme",
+            "label": "t:sections.addons.split_video_text.settings.color_scheme.label",
+            "default": "background-1"
+        }
+    ],
+    "blocks": [
+        {
+            "type": "heading",
+            "name": "t:sections.addons.split_video_text.blocks.heading.name",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "heading",
+                    "label": "t:sections.addons.split_video_text.blocks.heading.settings.heading.label",
+                    "default": "See What's New"
+                },
+                {
+                    "type": "range",
+                    "id": "font_size",
+                    "label": "t:sections.addons.split_video_text.blocks.heading.settings.font_size.label",
+                    "default": 34,
+                    "min": 0,
+                    "max": 100,
+                    "step": 1,
+                    "unit": "px"
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "name": "t:sections.addons.split_video_text.blocks.text.name",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": "t:sections.addons.split_video_text.blocks.text.settings.text.label",
+                    "default": "<p>Step into style and comfort. Experience unparalleled durability and elegance in one.</p>"
+                }
+            ]
+        },
+        {
+            "type": "button",
+            "name": "t:sections.addons.split_video_text.blocks.button.name",
+            "limit": 2,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "button_text",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.button_text.label",
+                    "default": "Shop Now"
+                },
+                {
+                    "type": "url",
+                    "id": "button_link",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.button_link.label"
+                },
+                {
+                    "type": "select",
+                    "id": "button_style",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.button_style.label",
+                    "default": "btn--primary",
+                    "options": [
+                        {
+                            "value": "",
+                            "label": "t:sections.addons.split_video_text.blocks.button.settings.button_style.options__1.label"
+                        },
+                        {
+                            "value": "btn--primary",
+                            "label": "t:sections.addons.split_video_text.blocks.button.settings.button_style.options__2.label"
+                        },
+                        {
+                            "value": "btn--outline-primary",
+                            "label": "t:sections.addons.split_video_text.blocks.button.settings.button_style.options__3.label"
+                        }
+                    ]
+                },
+                {
+                    "type": "checkbox",
+                    "id": "enable_icon",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.enable_icon.label",
+                    "default": false
+                },
+                {
+                    "type": "text",
+                    "id": "icon",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.icon.label",
+                    "default": "shopping_cart",
+                    "info": "t:sections.addons.split_video_text.blocks.button.settings.icon.info"
+                },
+                {
+                    "type": "image_picker",
+                    "id": "custom_icon",
+                    "label": "t:sections.addons.split_video_text.blocks.button.settings.custom_icon.label",
+                    "info": "t:sections.addons.split_video_text.blocks.button.settings.custom_icon.info"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "t:sections.addons.split_video_text.presets.name",
+            "blocks": [
+                {
+                    "type": "heading"
+                },
+                {
+                    "type": "text"
+                },
+                {
+                    "type": "button"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,156 @@
+{%- liquid
+  layout none
+  assign empty_state = false
+
+  if empty_state
+    assign product_link = '/admin/products'
+    assign title = 'home_page.onboarding.product_title' | t
+    assign compare_at_price = 2999
+    assign price = 1999
+  else
+    assign product_link = product.url | within: collection
+    assign title = product.title
+    assign compare_at_price = product.compare_at_price
+    assign price = product.price
+  endif
+
+  assign is_on_sale = false
+
+  if compare_at_price > price
+    assign is_on_sale = true
+  endif
+-%}
+
+{%- capture content_for_query_string -%}{{ content_for_header }}{%- endcapture -%}
+
+{%- assign page_url = content_for_query_string
+  | split: '"pageurl":"'
+  | last
+  | split: '"'
+  | first
+  | split: '.myshopify.com'
+  | last
+  | replace: '\/', '/'
+  | replace: '%20', ' '
+  | replace: '\u0026', '&'
+-%}
+
+{%- liquid
+  for i in (1..1)
+    unless page_url contains '?'
+      break
+    endunless
+
+    assign page_query_string = page_url | split: '?' | last
+    assign parts = page_query_string | split: '&'
+
+    for part in parts
+      assign key_and_value = part | split: '='
+
+      if key_and_value.size > 1 and key_and_value[0] == 'desktopGrid'
+        assign desktop_grid = key_and_value[1]
+      endif
+
+      if key_and_value.size > 1 and key_and_value[0] == 'mobileGrid'
+        assign mobile_grid = key_and_value[1]
+      endif
+    endfor
+  endfor
+-%}
+
+<div>
+  <div class="dbtfy-recently-viewed-bar-product d-flex pe-0 py-2">
+    {%- assign media = product.media.first -%}
+
+    <a href="{{ product_link }}" class="d-block">
+      <div
+        style="flex-shrink: 0; margin-right: 10px; padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100 }}%;"
+        class="media-wrapper media-wrapper--product media-wrapper--no-background">
+        {%- capture sizes -%}80px{% endcapture %}
+
+        {%- if media != blank -%}
+          {{-
+            media
+            | image_url: width: 80
+            | image_tag:
+              loading: 'lazy',
+              sizes: sizes,
+              widths: '300,400,500,600,700,800,1000,1200,1400,1600,1800,2000,2200,2400,2600',
+              class: 'media'
+          -}}
+        {%- else -%}
+          {{- 'product-1' | placeholder_svg_tag: 'placeholder-svg media' -}}
+        {%- endif -%}
+      </div>
+    </a>
+
+    <div class="dbtfy-recently-viewed-product-item{% if settings.product_grid_truncate_title %} flex-fill text-ellipsis{% endif %} ps-2{% if simplify_on_mobile %} d-none d-md-block{% endif %}">
+      <h6 class="w-100 h6{% if settings.product_grid_truncate_title %} text-ellipsis{% endif %}">
+        <a href="{{ product.url }}">{{ title }}</a>
+      </h6>
+
+      {%- if settings.dbtfy_recently_viewed_review_badge_product_grid -%}
+        {%- unless empty_state -%}
+          <div class="product-item__reviews">
+            {%- render 'review-badge', product: product, position: 'product_grid' -%}
+          </div>
+        {%- endunless -%}
+      {%- endif -%}
+      {%- if settings.dbtfy_recently_viewed_show_product_price -%}
+        <p class="product-item__price-wrapper">
+          <span class="d-flex flex-nowrap text-accent">
+            <span class="price price--regular me-1{% if is_on_sale %} price--sale text-sale{% endif %}"
+              aria-label="{{ 'products.general.regular_price' | t }}">
+              {%- if product.price_varies and empty_state == false -%}
+                <span class="money">{{ product.price_min | money }} +</span>
+              {%- else -%}
+                <span class="money">{{ price | money }}</span>
+              {%- endif -%}
+            </span>
+
+            <span class="price price--compare text-strike text-muted" {% unless is_on_sale %} hidden {% endunless %} aria-label="{{ 'products.general.regular_price' | t }}">
+              {%- if is_on_sale -%} <span class="money">{{ compare_at_price | money }}</span> {%- else -%}<span class="money"></span>{%- endif -%}
+            </span>
+          </span>
+        </p>
+      {%- endif -%}
+      {%- unless settings.dbtfy_recently_viewed_product_grid_badge_placement == 'none' -%}
+        {%- if is_sold_out and settings.dbtfy_recently_viewed_show_sold_out_badge -%}
+          <div class="badge badge--{{ settings.dbtfy_recently_viewed_product_grid_badge_placement }}">
+            <span class="{{ settings.icon }}" translate="no">watch_later</span>
+            <span>
+              {{ 'products.product.sold_out_html' | t }}
+            </span>
+          </div>
+        {%- elsif is_on_sale and settings.dbtfy_recently_viewed_show_sales_badge -%}
+          {%- capture discount_price -%}
+            {%- if settings.sale_type == 'amount' -%}
+              {%- assign discount_price = compare_at_price | minus: price -%}
+              <span class="money dbtfy-discount-saved-badge__value">{{ discount_price | money }}</span>
+            {%- elsif settings.sale_type == 'percentage' -%}
+              {%- assign discount_price = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price -%}
+              <span class="dbtfy-discount-saved-badge__value">{{ discount_price }}%</span>
+            {%- endif -%}
+          {%- endcapture -%}
+
+          <span class="dbtfy-discount-saved-badge badge" hidden>
+            <span class="{{ settings.icon }}" translate="no">local_offer</span>
+            <span>
+              {{ 'products.general.save_html' | t: saved_amount: discount_price }}
+            </span>
+          </span>
+        {%- endif -%}
+      {%- endunless -%}
+    </div>
+  </div>
+
+  <div class="dbtfy-recently-viewed-product">
+    {%- liquid
+      capture block_width
+        render 'section-block-width', desktop_grid: desktop_grid, mobile_grid: mobile_grid, type: 'product'
+      endcapture
+
+      render 'product-grid-item', product: product, block_width: block_width, current: 1, products_per_row_desktop: desktop_grid, products_per_row_mobile: mobile_grid, images_loading_type: 'lazy', show__product_vendor: settings.dbtfy_recently_viewed_show_product_vendor
+    -%}
+  </div>
+</div>

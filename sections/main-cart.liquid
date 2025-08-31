@@ -1,0 +1,20 @@
+{%- render 'cart-page', cart: cart, color_scheme: section.settings.color_scheme -%}
+
+{% schema %}
+{
+  "name": "t:sections.main_cart.name",
+  "class": "cart-page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    }
+  ]
+}
+{% endschema %}

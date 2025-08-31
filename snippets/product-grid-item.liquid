@@ -1,0 +1,359 @@
+{%- liquid
+  if empty_state
+    assign product_link = '/admin/products'
+    assign vendor = 'home_page.onboarding.product_vendor' | t
+    assign title = 'home_page.onboarding.product_title' | t
+    assign compare_at_price = 2999
+    assign price = 1999
+  else
+    assign variant = product.first_available_variant
+    assign product_link = product.url | within: collection
+    assign vendor = product.vendor
+    assign title = product.title
+    assign compare_at_price = product.compare_at_price
+    assign price = product.price
+  endif
+
+  assign is_on_sale = false
+  assign is_sold_out = true
+
+  if compare_at_price > price
+    assign is_on_sale = true
+  endif
+
+  if product.available or empty_state
+    assign is_sold_out = false
+  endif
+
+  assign has_hover_image = false
+  assign has_touch_image = false
+
+  if settings.dbtfy_show_second_image_on_hover_show_on_hover and product.media.size > 1
+    assign has_hover_image = true
+    assign hover_image = product.media[1].preview_image
+  endif
+
+  if settings.dbtfy_show_second_image_on_hover_enable_touch_screen and product.media.size > 1
+    assign has_touch_image = true
+  endif
+
+  assign variant = product.selected_or_first_available_variant
+
+  capture product_collections
+    for collection in product.collections
+      echo collection.handle
+
+      unless forloop.last
+        echo ','
+      endunless
+    endfor
+  endcapture
+
+  assign has_color_swatches = false
+
+  if settings.dbtfy_color_swatches_grid_options != blank
+    if product.available and product.variants.size > 1
+      assign has_color_swatches = true
+    endif
+  endif
+
+  assign hover_animation = settings.dbtfy_show_second_image_on_hover_hover_animation
+
+  case hover_animation
+    when 'fade'
+      assign hover_animation_class = 'animation-fade'
+
+    when 'none'
+      assign hover_animation_class = 'animation-none'
+
+    when 'zoom'
+      assign hover_animation_class = 'animation-zoom'
+
+  endcase
+
+  assign enable_hover_carousel = settings.dbtfy_show_second_image_on_hover_enable_carousel
+-%}
+
+<div class="{{ block_width }} product-item product-item--grid{% if has_hover_image %} product-item--has-hover-image{% endif %}{% if has_touch_image %} product-item--has-touch-screen-image{% endif %}{% if is_sold_out %} product-item--sold-out{% endif %}{% if empty_state %} product-item--empty-state{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+  data-product-item-grid
+  data-product-handle="{{ product.handle }}"
+  data-product-id="{{ product.id }}"
+  data-product-collections="{{ product_collections }}">
+  <div class="card">
+    <div class="card__image-wrapper product-item__image-wrapper">
+      <style hidden>
+        {% if enable_hover_carousel and has_hover_image %}
+          @media (min-width: 768px) {
+            .product-item__image--hover,
+            .product-item__image--touch {
+              display: none !important;
+            }
+          }
+        {% endif %}
+      </style>
+
+      {%- capture hover_media_carousel -%}
+        {%- if product.media.size > 0 -%}
+          <div class="product__gallery product__gallery--slider product__gallery--slider-mobile"
+               data-product-gallery
+               style="display: none;">
+
+        <div class="slick row row--sm gy-3 mt-0 product__media-group{% unless is_stacked_layout %} product__media-group--single-xr{% endunless %}"
+             data-product-media-group>
+
+            {%- assign first_media = true -%}
+
+            {%- for media in product.media -%}
+              {%- liquid
+                assign is_featured = false
+
+                if media == featured_media
+                  assign is_featured = true
+                endif
+
+                capture thumbnail_alt
+                  if media.media_type == 'video' or media.media_type == 'external_video'
+                    echo 'products.product.video_thumbnail_alt' | t: imageAlt: media.alt | escape
+                  elsif media.media_type == 'model'
+                    echo 'products.product.model_thumbnail_alt' | t: imageAlt: media.alt | escape
+                  else
+                    echo 'products.product.gallery_thumbnail_alt' | t: imageAlt: media.alt | escape
+                  endif
+                endcapture
+              -%}
+
+              <div class="product__media-flex-wrapper" data-product-media-flex-wrapper>
+                <div class="product__media-flex">
+                  {%- render 'media',
+                      media: media,
+                      id: id,
+                      loop: enable_video_looping,
+                      is_featured: is_featured,
+                      images_loading_type: images_loading_type,
+                      product: product,
+                      lazy_load: false,
+                      index: forloop.index0,
+                      size: image_size
+                  -%}
+
+                  {%- liquid
+                    if is_stacked_layout
+                      assign xr_id = false
+
+                      if first_media and has_first_3d_model
+                        assign xr_id = first_3d_model.id
+                      elsif media.media_type == 'model'
+                        assign xr_id = media.id
+                      endif
+
+                      if xr_id
+                        render 'xr-button', model_id: xr_id, multi: true
+                      endif
+
+                      assign first_media = false
+                    endif
+                  -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+          </div>
+        {%- endif -%}
+      {%- endcapture -%}
+      
+      <a href="{{ product_link }}" aria-label="Click to view {{ product.title }} product">
+        {%- assign media = product.media.first -%}
+        {%- if media != blank -%}
+          <div class="card__image product-item__image media-wrapper media-wrapper--cover {{ hover_animation_class }}{% if image_size != blank %} media-wrapper--{{ image_size }} padding-top-unset{% else %} media-wrapper--product{% endif %}" {% if image_size == blank %} style="padding-top:{{ 1 | divided_by: media.preview_image.aspect_ratio | times: 100 }}%;"{% endif %}>
+            {%- liquid
+              assign products_per_row_desktop = products_per_row_desktop | times: 1
+              assign height_ratio_desktop = 100 | divided_by: products_per_row_desktop
+              assign height_ratio_mobile = 100 | divided_by: products_per_row_mobile
+              assign width_ratio_desktop = 100.0 | divided_by: height_ratio_desktop
+              assign maximum_image_width_desktop = settings.page_container_width | divided_by: width_ratio_desktop
+            -%}
+
+            {%- capture sizes -%}(max-width: 768px) {{ height_ratio_mobile }}vw, min({{ maximum_image_width_desktop | ceil }}px, {{ height_ratio_desktop }}vw){% endcapture %}
+
+            {{-
+              media.preview_image
+              | image_url: width: media.preview_image.width
+              | image_tag:
+                loading: images_loading_type,
+                sizes: sizes,
+                widths: '300,400,500,600,700,800,1000,1200,1400,1600,1800,2000,2200,2400,2600',
+                class: 'media'
+            -}}
+          </div>
+
+          {%- if enable_hover_carousel -%}
+            {{- hover_media_carousel -}}
+          {%- endif -%}
+
+          {%- if has_hover_image or has_touch_image  -%}
+            <div class="card__image product-item__image product-item__image--hover product-item__image--touch media-wrapper media-wrapper--cover {{ hover_animation_class }}{% if image_size != blank %} media-wrapper--{{ image_size }} padding-top-unset{% else %} media-wrapper--product{% endif %}"
+              {% if image_size == blank %} style="padding-top: {{ 1 | divided_by: hover_image.aspect_ratio | times: 100 }}%;" {% endif %}>
+              {%- liquid
+                assign products_per_row_desktop = products_per_row_desktop | times: 1
+                assign height_ratio_desktop = 100 | divided_by: products_per_row_desktop
+                assign height_ratio_mobile = 100 | divided_by: products_per_row_mobile
+                assign width_ratio_desktop = 100.0 | divided_by: height_ratio_desktop
+                assign maximum_image_width_desktop = settings.page_container_width | divided_by: width_ratio_desktop
+              -%}
+
+              {%- capture sizes -%}(max-width: 768px) {{ height_ratio_mobile }}vw, min({{ maximum_image_width_desktop | ceil }}px, {{ height_ratio_desktop }}vw){% endcapture %}
+
+              {{-
+                hover_image
+                | image_url: width: hover_image.width
+                | image_tag:
+                  loading: images_loading_type,
+                  sizes: sizes,
+                  widths: '300,400,500,600,700,800,1000,1200,1400,1600,1800,2000,2200,2400,2600',
+                  class: 'media'
+              -}}
+            </div>
+          {%- endif -%}
+        {%- else -%}
+          {{- 'product-' | append: current | placeholder_svg_tag: 'card__image placeholder-svg' -}}
+        {%- endif -%}
+      </a>
+
+      {%- unless product_grid_badge_placement == 'none' -%}
+        <div class="badge-wrapper badge--{{ product_grid_badge_placement }}">
+          {%- if is_sold_out and show_sold_out_badge -%}
+            <div class="badge">
+              <span class="{{ settings.icon }}" translate="no">watch_later</span>
+              <span>
+                {{ 'products.product.sold_out_html' | t }}
+              </span>
+            </div>
+          {%- elsif is_on_sale and show_sales_badge -%}
+            {%- capture discount_price -%}
+              {%- if settings.sale_type == 'amount' -%}
+                {%- assign discount_price = compare_at_price | minus: price -%}
+                <span class="money dbtfy-discount-saved-badge__value">{{ discount_price | money }}</span>
+              {%- elsif settings.sale_type == 'percentage' -%}
+                {%- assign discount_price = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price -%}
+                <span class="dbtfy-discount-saved-badge__value">{{ discount_price }}%</span>
+              {%- endif -%}
+            {%- endcapture -%}
+
+            <span class="dbtfy-discount-saved-badge badge" hidden>
+              <span class="{{ settings.icon }}" translate="no">local_offer</span>
+              <span>
+                {{ 'products.general.save_html' | t: saved_amount: discount_price }}
+              </span>
+            </span>
+          {%- endif -%}
+
+          {%- if custom_badge_label != blank -%}
+            <div style="background-color: {{ badge_background_color }}; color: {{ badge_text_color }};" class="badge">
+              {%- if custom_badge_icon -%}
+                <span class="{{ settings.icon }}" translate="no">{{ custom_badge_icon }}</span>
+              {%- endif -%}
+
+              <span>
+                {{- custom_badge_label -}}
+              </span>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+
+      {%- unless empty_state -%}
+        <div class="badge badge--icons{% if product_grid_badge_placement == 'top-right' %} badge--top-left{% else %} badge--top-right{% endif %}">
+          {% if settings.dbtfy_wish_list_icon_position == 'grid-image' %}
+            {%- render 'dbtfy-wish-list', product: product -%}
+          {% endif %}
+          {%- render 'dbtfy-quick-compare', product: product, type: 'grid' -%}
+          {% if enable_quick_view %}
+            {%- render 'dbtfy-quick-view', product: product -%}
+          {% endif %}
+
+        </div>
+      {%- endunless -%}
+    </div>
+
+    <div class="card__body text-center justify-content-start">
+      <div class="row gy-2 h-100 {{ product_text_alignment }}">
+        <div class="{% if settings.dbtfy_wish_list_icon_position == 'grid-body'%} d-flex justify-content-around align-items-center{% endif %}">
+          {%- liquid
+            if settings.dbtfy_wish_list_icon_position == 'grid-body'
+              render 'dbtfy-wish-list', product: product, class: 'dbtfy-wish-list__grid--body'
+              assign width = 'col-9'
+            endif
+            unless empty_state
+              if product != blank
+                render 'dbtfy-collection-addtocart', product: product, sold_out: is_sold_out, is_primary: true, class: width
+              endif
+            endunless
+          -%}
+        </div>
+
+        {%- liquid
+          if has_color_swatches and show_color_swatches
+            unless empty_state
+              render 'dbtfy-color-swatches', product: product, type: 'grid', position: product_text_alignment, product_text_alignment: product_text_alignment
+            endunless
+          endif
+        -%}
+
+        <a href="{{ product_link }}" class="d-block">
+          <h3 class="h4{% if settings.product_grid_truncate_title %} text-ellipsis{% endif %}">{{ title }}</h3>
+        </a>
+
+        {%- if show_product_rating -%}
+          {%- unless empty_state -%}
+            <div class="product-item__reviews">
+              {%- render 'review-badge', product: product, position: 'product_grid' -%}
+            </div>
+          {%- endunless -%}
+        {%- endif -%}
+
+        {%- if show_product_price -%}
+          <p class="product-item__price-wrapper">
+            <span class="gx-2 gy-1 row row-cols-auto {% if product_text_alignment %} {{ product_text_alignment }} {% else %} justify-content-center text-accent {% endif %}">
+              <span class="price price--regular{% if is_on_sale %} price--sale text-sale{% endif %}"
+                aria-label="{{ 'products.general.regular_price' | t }}" >
+                {%- if product.price_varies and empty_state == false -%}
+                  <span class="money">{{ product.price_min | money }} +</span>
+                {%- else -%}
+                  <span class="money">{{ price | money }}</span>
+                {%- endif -%}
+              </span>
+              <span class="price price--compare text-strike text-muted" {% unless is_on_sale %} hidden {% endunless %} aria-label="{{ 'products.general.regular_price' | t }}">
+                {%- if is_on_sale -%} <span class="money">{{ compare_at_price | money }}</span> {%- else -%} <span class="money"></span> {%- endif -%}
+              </span>
+            </span>
+
+            {%- if variant.available and variant.unit_price_measurement -%}
+              {%- capture unit_price_separator -%}
+                <span aria-hidden="true">/</span><span class="visually-hidden">&nbsp;{{ 'general.accessibility.unit_price_separator' | t }}&nbsp;</span>
+              {%- endcapture -%}
+
+              {%- capture unit_price_base_unit -%}
+                <span> {%- if variant.unit_price_measurement.reference_value != 1 -%} {{- variant.unit_price_measurement.reference_value -}}{%- endif -%}
+                  {{ variant.unit_price_measurement.reference_unit }}
+                </span>
+              {%- endcapture -%}
+
+              <span>
+                <span class="visually-hidden">{{ 'products.general.unit_price' | t }}</span>
+                <span>{{ variant.unit_price | money }}</span>
+                {{- unit_price_separator -}}
+                {{- unit_price_base_unit -}}
+              </span>
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if show_product_vendor -%}
+      <div class="card__footer card__footer--xs {% if product_text_alignment %} {{ product_text_alignment }} {% else %} text-center{% endif %}">
+        <p class="text-sm text-italic">{{ vendor }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

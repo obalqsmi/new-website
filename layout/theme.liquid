@@ -1,0 +1,135 @@
+<!doctype html>
+<!-- prettier-ignore -->
+<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{%- render 'direction' -%}">
+    <head>
+      <!-- Basic page needs -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1.0,height=device-height,minimum-scale=1.0,maximum-scale=2.0">
+      <meta name="theme-color" content="{{ settings.page_button_background }}">
+      <meta property="og:image" content="{{ settings.favicon | image_url: width: 180, height: 180, crop: 'center' }}">
+      <meta name="msapplication-TileImage" content="{{ settings.favicon | image_url: width: 144, height: 144, crop: 'center' }}">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="mobile-web-app-capable" content="yes">
+      <meta name="author" content="Debutify">
+  
+      <link rel="canonical" href="{{ canonical_url }}">
+  
+      <!-- Preconnect external resources -->
+      <link rel="preconnect" href="https://cdn.shopify.com">
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+      <link rel="preconnect" href="https://monorail-edge.shopifysvc.com">
+      <link rel="dns-prefetch" href="https://productreviews.shopifycdn.com">
+      <link rel="preconnect" href="https://debutify.com">
+  
+      <!-- Preload assets -->
+      {%- unless settings.heading_font.system? -%}
+        <link rel="preload" href="{{ settings.heading_font | font_url }}" as="font" type="font/woff2" crossorigin>
+      {%- endunless -%}
+  
+      {%- unless settings.text_font.system? -%}
+        <link rel="preload" href="{{ settings.text_font | font_url }}" as="font" type="font/woff2" crossorigin>
+      {%- endunless -%}
+  
+      {%- unless settings.accent_font.system? -%}
+        <link rel="preload" href="{{ settings.accent_font | font_url }}" as="font" type="font/woff2" crossorigin>
+      {%- endunless -%}
+  
+      <link rel="preload" href="{{ settings.icon | append: '.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+      <link rel="modulepreload" href="{{ 'theme.min.js' | asset_url }}" as="script">
+  
+      <!-- Favicon -->
+      {%- liquid
+        assign favicon_32 = settings.favicon | image_url: width: 32, height: 32, crop: 'center'
+        assign favicon_96 = settings.favicon | image_url: width: 96, height: 96, crop: 'center'
+        assign favicon_180 = settings.favicon | image_url: width: 180, height: 180, crop: 'center'
+  
+        if settings.favicon == blank
+        assign favicon_32 = 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='
+        assign favicon_96 = favicon_32
+        assign favicon_180 = favicon_32
+        endif
+      -%}
+  
+      <link rel="icon" type="image/png" href="{{ favicon_32 }}" sizes="32x32">
+      <link rel="icon" type="image/png" href="{{ favicon_96 }}" sizes="96x96">
+      <link rel="icon" type="image/png" href="{{ favicon_180 }}" sizes="180x180">
+      <link rel="apple-touch-icon" href="{{ favicon_180 }}" sizes="180x180">
+  
+      <!-- Title and description -->
+      <title>
+        {{ page_title }}{% if current_tags %}{%- assign meta_tags = current_tags | join: ", " -%} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+      </title>
+  
+      {%- if page_description -%}
+        <meta name="description" content="{{ page_description | escape }}">
+      {%- endif -%}
+  
+      <!-- Social meta -->
+      {%- render 'social-meta-tags' -%}
+  
+      <!-- Microdata -->
+      {%- render 'microdata-schema' -%}
+  
+      <!-- Variables -->
+      {%- render 'css-variables' -%}
+      {%- render 'js-variables' -%}
+  
+      <!-- CSS -->
+      {{- 'theme.css' | asset_url | stylesheet_tag: preload: true -}}
+  
+      <!-- JS -->
+      <script type="module" src="{{ 'theme.min.js' | asset_url }}" defer></script>
+  
+      {%- if request.page_type contains 'customers/' -%}
+        <script src="{{ 'shopify_common.js' | asset_url }}" defer></script>
+      {%- endif -%}
+  
+      <!-- Header hook for plugins -->
+      {{ content_for_header }}
+    </head>
+  
+    <body class="{% render 'body-classes' %}">
+      {%- render 'addons-limit-reached' -%}
+      {%- render 'addons-learning-toast' -%}
+      {%- render 'code-fetch' -%}
+  
+      {%- if request.page_type != 'password' -%}
+        {%- sections 'general-group' -%}
+        {%- sections 'widgets-group' -%}
+        {%- sections 'header-group' -%}
+      {%- endif -%}
+  
+      {%- liquid
+        if settings.cart_type == 'drawer'
+          render 'drawer-cart'
+        elsif settings.cart_type == 'modal'
+          render 'modal-cart'
+        endif
+  
+        render 'theme-addons'
+  
+        if request.page_type != 'collection'
+          render 'dbtfy-breadcrumbs'
+        endif
+      -%}
+  
+      <main role="main" id="main" class="main-content fadeIn">
+        {{ content_for_layout }}
+  
+        {%- if request.page_type != 'password' -%}
+          <div class="footer-group">
+            {%- sections 'footer-group' -%}
+          </div>
+        {%- endif -%}
+      </main>
+  
+      <!-- Google Tag Manager -->
+      {%- render 'integrations-gtm' -%}
+  
+      <!-- Klaviyo app -->
+      {%- render 'integrations-klaviyo' -%}
+  
+      <!-- Custom code -->
+      {%- render 'custom-code' -%}
+    </body>
+  </html>

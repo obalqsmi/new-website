@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "dbtfy-wish-list",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}
