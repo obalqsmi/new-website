@@ -1,6 +1,5 @@
 {% render "ysa-header" %}
 {% render "ysa-theme" %}
-{% render "ysa-matrix" %}
 
 {% assign current_variant = product.selected_or_first_available_variant %}
 <section class="product">
@@ -75,6 +74,18 @@
   const mainImage = document.getElementById('ProductMainImage');
   const radios = form.querySelectorAll('input[type="radio"]');
 
+  function formatMoney(cents){
+    if(window.Shopify && Shopify.formatMoney){
+      return Shopify.formatMoney(cents);
+    }
+    return '$' + (cents/100).toFixed(2);
+  }
+
+  function updatePillStyles(){
+    form.querySelectorAll('.option-pill').forEach(l=>l.classList.remove('selected'));
+    form.querySelectorAll('input[type="radio"]:checked + .option-pill').forEach(l=>l.classList.add('selected'));
+  }
+
   function updateVariant() {
     const selected = {};
     radios.forEach(r => { if (r.checked) selected[r.name.replace('options[','').replace(']','')] = r.value; });
@@ -83,14 +94,16 @@
     });
     if (!variant) return;
     variantIdInput.value = variant.id;
-    priceEl.textContent = Shopify.formatMoney(variant.price);
+    priceEl.textContent = formatMoney(variant.price);
     if (variant.featured_media) {
       mainImage.src = variant.featured_media.src;
       mainImage.alt = variant.featured_media.alt;
     }
+    updatePillStyles();
   }
 
   radios.forEach(r => r.addEventListener('change', updateVariant));
+  updatePillStyles();
   document.querySelectorAll('.product__thumb').forEach(btn => {
     btn.addEventListener('click', () => {
       const media = productData.media.find(m => m.id == btn.dataset.mediaId);

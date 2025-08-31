@@ -16,9 +16,10 @@
       <a href="/collections/all">Catalog</a>
       <a href="/pages/contact">Contact</a>
     </nav>
-    <form action="/search" method="get" class="ysa-search" role="search">
-      <input type="search" name="q" placeholder="Search our store" aria-label="Search">
-    </form>
+      <form action="/search" method="get" class="ysa-search" role="search">
+        <input type="search" name="q" placeholder="Search our store" aria-label="Search" autocomplete="off">
+        <ul class="ysa-search__results" hidden></ul>
+      </form>
     <div class="ysa-header__actions">
       <a href="/account" class="ysa-icon" aria-label="Account">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -61,10 +62,14 @@
   #ysa-header .ysa-nav{display:flex;gap:16px;flex:0 0 auto;white-space:nowrap;}
   #ysa-header .ysa-nav a{text-decoration:none;color:var(--text-300);font-weight:500;font-size:16px;transition:color .2s ease;}
   #ysa-header .ysa-nav a:hover{color:#fff;}
-  #ysa-header .ysa-search{flex:1;}
-  #ysa-header .ysa-search input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(134,242,255,.14);
-    background:linear-gradient(180deg,rgba(6,16,34,.72),rgba(6,12,25,.54));color:var(--text-100);}
-  #ysa-header .ysa-search input::placeholder{color:var(--text-300);}
+    #ysa-header .ysa-search{flex:1;position:relative;}
+    #ysa-header .ysa-search input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(134,242,255,.14);
+      background:linear-gradient(180deg,rgba(6,16,34,.72),rgba(6,12,25,.54));color:var(--text-100);}
+    #ysa-header .ysa-search input::placeholder{color:var(--text-300);}
+    #ysa-header .ysa-search__results{position:absolute;top:100%;left:0;right:0;background:rgba(6,12,25,.95);
+      border:1px solid rgba(134,242,255,.35);border-radius:8px;list-style:none;margin:4px 0 0;padding:0;max-height:300px;overflow:auto;z-index:1000;}
+    #ysa-header .ysa-search__results li a{display:block;padding:8px 12px;text-decoration:none;color:var(--text-100);}
+    #ysa-header .ysa-search__results li a:hover{background:rgba(134,242,255,.14);}
   #ysa-header .ysa-header__actions{display:flex;gap:12px;}
   #ysa-header .ysa-icon{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;color:var(--cyber-400);transition:transform .2s ease,color .2s ease;text-decoration:none;position:relative;}
   #ysa-header .ysa-icon:hover{transform:translateY(-2px);color:#fff;}
@@ -91,5 +96,26 @@
     if(cartDrawer){
       cartDrawer.style.display = 'none';
     }
+
+    const searchForm = header.querySelector('.ysa-search');
+    const searchInput = searchForm.querySelector('input[type="search"]');
+    const results = searchForm.querySelector('.ysa-search__results');
+    let controller;
+    searchInput.addEventListener('input', (e)=>{
+      const q = e.target.value.trim();
+      if(controller) controller.abort();
+      if(q.length < 2){ results.innerHTML=''; results.hidden = true; return; }
+      controller = new AbortController();
+      fetch(`/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=4`, {signal: controller.signal})
+        .then(r=>r.json())
+        .then(data=>{
+          const products = data.resources.results.products;
+          results.innerHTML = products.map(p=>`<li><a href="${p.url}">${p.title}</a></li>`).join('');
+          results.hidden = products.length === 0;
+        });
+    });
+    document.addEventListener('click', (e)=>{
+      if(!searchForm.contains(e.target)) results.hidden = true;
+    });
   })();
 </script>

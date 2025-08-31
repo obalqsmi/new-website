@@ -359,7 +359,7 @@
       const ctx = canvas.getContext('2d');
       let w, h, fontSize, columns, drops;
       let lastTime = 0;
-      const speedFactor = 0.15; // slower rainfall
+      const speedFactor = 0.30; // keep same vibe as hero
 
       function resize(){
         const dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -387,7 +387,7 @@
             ctx.fillText(char, x, y);
 
             if(y > h && Math.random() > 0.975){ drops[i] = 0; }
-            drops[i] += 0.5; // keep row spacing clean
+            drops[i] += 1; // keep row spacing clean
           }
           lastTime = timestamp;
         }

@@ -1,9 +1,8 @@
 {% render "ysa-header" %}
 {% render "ysa-theme" %}
-{% render "ysa-matrix" %}
 
 <section class="catalog">
-  {% assign collection = collections.all %}
+  {% assign collection = collections['all'] %}
   {% paginate collection.products by 12 %}
     <ul class="catalog__grid" role="list">
       {% for product in paginate.items %}
@@ -32,3 +31,4 @@
     {% endif %}
   {% endpaginate %}
 </section>
+
