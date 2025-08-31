@@ -1,0 +1,43 @@
+{% render "ysa-header" %}
+{% render "ysa-theme" %}
+
+<section class="contact">
+  <h1 class="contact__header">Contact Us</h1>
+  {%- form 'contact', id: 'ContactForm' -%}
+    {% if form.posted_successfully? %}
+      <p class="contact__success" role="status">Thanks for contacting us! We'll get back to you soon.</p>
+    {% endif %}
+    {% if form.errors %}
+      <ul class="contact__errors" role="alert">
+        {% for field in form.errors %}
+          <li>{{ field | capitalize }} {{ form.errors.messages[field] }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <div class="contact__grid">
+      <div class="contact__form">
+        <div class="field">
+          <label for="ContactName">Name</label>
+          <input type="text" id="ContactName" name="contact[name]" required>
+        </div>
+        <div class="field">
+          <label for="ContactEmail">Email</label>
+          <input type="email" id="ContactEmail" name="contact[email]" required>
+        </div>
+        <div class="field">
+          <label for="ContactSubject">Subject</label>
+          <input type="text" id="ContactSubject" name="contact[subject]" required>
+        </div>
+        <div class="field">
+          <label for="ContactMessage">Message</label>
+          <textarea id="ContactMessage" name="contact[body]" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary">Send Message</button>
+      </div>
+      <div class="contact__info">
+        <p>We typically respond within 1–2 business days.</p>
+      </div>
+    </div>
+  {%- endform -%}
+</section>
+

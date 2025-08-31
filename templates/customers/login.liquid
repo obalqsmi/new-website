@@ -1,0 +1,30 @@
+{% render "ysa-header" %}
+{% render "ysa-theme" %}
+
+<section class="login">
+  <h1 class="login__title">Customer Login</h1>
+  {%- form 'customer_login', id: 'LoginForm' -%}
+    {% if form.errors %}
+      <ul class="login__errors" role="alert">
+        {% for field in form.errors %}
+          <li>{{ form.errors.translated_field[field] }} {{ form.errors.messages[field] }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <div class="field">
+      <label for="CustomerEmail">Email</label>
+      <input type="email" name="customer[email]" id="CustomerEmail" autocorrect="off" autocapitalize="off" required>
+    </div>
+    <div class="field">
+      <label for="CustomerPassword">Password</label>
+      <input type="password" name="customer[password]" id="CustomerPassword" required>
+    </div>
+    <button type="submit" class="btn btn--primary">Sign In</button>
+    <div class="login__links">
+      <a href="/account/register">Create account</a>
+      <span>|</span>
+      <a href="/account/recover">Forgot password?</a>
+    </div>
+  {%- endform -%}
+</section>
+

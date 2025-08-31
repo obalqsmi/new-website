@@ -55,19 +55,33 @@
 
   /* Cart */
   .cart{display:grid;gap:24px;}
-  .cart__items{list-style:none;padding:0;margin:0;display:grid;gap:16px;}
-  .cart__item{display:flex;gap:16px;background:rgba(6,12,25,.6);padding:16px;border:1px solid rgba(134,242,255,.14);border-radius:12px;}
-  .cart__image img{width:96px;height:96px;object-fit:cover;border-radius:8px;}
-  .cart__details{display:grid;flex:1;grid-template-columns:1fr auto;grid-template-rows:auto auto auto;gap:8px;}
+  .cart__form{display:grid;gap:24px;}
+  @media(min-width:768px){.cart__form{grid-template-columns:2fr 1fr;align-items:start;}}
+  .cart__table{width:100%;border-collapse:collapse;background:rgba(6,12,25,.6);border:1px solid rgba(134,242,255,.14);border-radius:12px;overflow:hidden;}
+  .cart__table th,.cart__table td{padding:12px;border-bottom:1px solid rgba(134,242,255,.14);text-align:left;}
+  .cart__table th{color:var(--text-300);font-weight:500;}
+  .cart__product{display:flex;gap:12px;align-items:center;}
+  .cart__info{display:flex;flex-direction:column;gap:4px;}
+  .cart__image img{width:80px;height:80px;object-fit:cover;border-radius:8px;}
   .cart__title{font-weight:600;color:var(--text-100);text-decoration:none;}
-  .cart__variant{color:var(--text-300);grid-column:1/-1;}
+  .cart__variant{color:var(--text-300);}
   .cart__price,.cart__subtotal{color:var(--cyber-300);}
-  .cart__qty .qty{width:60px;}
+  .cart__qty{display:flex;align-items:center;gap:8px;}
+  .cart__qty .qty{width:60px;text-align:center;}
+  .qty-btn{background:none;border:1px solid rgba(134,242,255,.35);color:var(--text-100);width:28px;height:28px;border-radius:6px;cursor:pointer;line-height:1;}
+  .qty-btn:hover{background:rgba(134,242,255,.14);}
   .cart__remove{background:none;border:none;color:var(--cyber-400);cursor:pointer;font-size:20px;line-height:1;}
   .cart__summary{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid rgba(134,242,255,.14);border-radius:12px;background:rgba(6,12,25,.6);}
   .cart__empty{text-align:center;display:flex;flex-direction:column;gap:16px;}
   .cart__note textarea{width:100%;}
   .cart__subtotal-line{display:flex;justify-content:space-between;}
+  @media(max-width:600px){
+    .cart__table thead{display:none;}
+    .cart__table tr{display:block;border-bottom:1px solid rgba(134,242,255,.14);}
+    .cart__table td{display:flex;justify-content:space-between;align-items:center;border:none;}
+    .cart__table td::before{content:attr(data-label);color:var(--text-300);}
+    .cart__product{flex-direction:row;}
+  }
 
   /* hide default cart drawer UI */
   #CartDrawer, cart-drawer, .cart-drawer{display:none !important;}
@@ -93,12 +107,20 @@
   .product__title{font-family:"Orbitron",sans-serif;font-weight:800;font-size:32px;margin:0;}
   .product__price{color:var(--cyber-300);font-size:24px;}
   .product__options{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
-  .product__buttons{display:flex;gap:12px;margin-top:8px;}
+  .product__buttons{display:flex;margin-top:8px;}
   .product__badges img{max-height:32px;margin-right:8px;}
   .product__details{margin-top:40px;}
   .product__details .tab{background:rgba(6,12,25,.6);border:1px solid rgba(134,242,255,.14);padding:8px 12px;border-radius:8px;margin-right:8px;cursor:pointer;color:var(--text-100);}
   .product__details [role="tabpanel"]{margin-top:16px;background:rgba(6,12,25,.6);padding:16px;border:1px solid rgba(134,242,255,.14);border-radius:12px;}
-  .product__sticky{position:fixed;bottom:20px;right:20px;left:20px;background:rgba(9,16,37,.85);backdrop-filter:blur(8px);padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:16px;border:1px solid rgba(134,242,255,.14);}
-  @media(min-width:768px){.product__sticky{left:auto;min-width:300px;}}
-  .product__sticky-title{flex:1;}
-</style>
+    .option-pill{display:inline-block;padding:6px 12px;border:1px solid rgba(134,242,255,.35);border-radius:999px;margin:4px 8px 4px 0;cursor:pointer;}
+    input[type=radio]:checked + .option-pill{background:var(--cyber-500);color:#001018;border-color:var(--cyber-500);}
+    .option-pill.selected{background:var(--cyber-500);color:#001018;border-color:var(--cyber-500);}
+
+  /* Login */
+  .login{max-width:400px;margin:40px auto;}
+  .login__title{text-align:center;margin-bottom:16px;}
+  .login__links{text-align:center;margin-top:12px;display:flex;gap:8px;justify-content:center;}
+    .login__errors{color:var(--cyber-400);list-style:disc;margin-left:20px;}
+    .payment-icons ul{display:flex;gap:12px;margin-top:8px;padding:0;list-style:none;}
+    .payment-icons img{height:24px;}
+  </style>

@@ -89,6 +89,9 @@
     </head>
   
     <body class="{% render 'body-classes' %}">
+      {% unless template == 'index' %}
+        {% render 'ysa-matrix' %}
+      {% endunless %}
       {%- render 'addons-limit-reached' -%}
       {%- render 'addons-learning-toast' -%}
       {%- render 'code-fetch' -%}
@@ -133,3 +136,4 @@
       {%- render 'custom-code' -%}
     </body>
   </html>
+
