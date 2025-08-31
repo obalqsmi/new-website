@@ -11,30 +11,41 @@
     </div>
   {% else %}
     <form action="/cart" method="post" novalidate class="cart__form">
-      <ul class="cart__items" role="list">
-        {% for item in cart.items %}
-          <li class="cart__item" data-line="{{ forloop.index }}">
-            <a href="{{ item.url }}" class="cart__image">
-              {{ item.image | img_url: '200x200', crop: 'center' | img_tag: item.title }}
-            </a>
-            <div class="cart__details">
-              <a href="{{ item.url }}" class="cart__title">{{ item.product.title }}</a>
-              {% unless item.product.has_only_default_variant %}
-                <p class="cart__variant">{{ item.variant.title }}</p>
-              {% endunless %}
-              <p class="cart__price">{{ item.price | money }}</p>
-              <div class="cart__qty">
-                <button type="button" class="qty-btn" data-change="-1" aria-label="Decrease quantity">−</button>
-                <label class="visually-hidden" for="updates_{{ item.key }}">Quantity</label>
-                <input id="updates_{{ item.key }}" class="qty" name="updates[{{ item.key }}]" value="{{ item.quantity }}" type="number" min="0">
-                <button type="button" class="qty-btn" data-change="1" aria-label="Increase quantity">+</button>
+      <table class="cart__table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Subtotal</th>
+            <th scope="col" class="visually-hidden">Remove</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart.items %}
+          <tr data-line="{{ forloop.index }}">
+            <td class="cart__product">
+              <a href="{{ item.url }}" class="cart__image">{{ item.image | img_url: '200x200', crop: 'center' | img_tag: item.title }}</a>
+              <div class="cart__info">
+                <a href="{{ item.url }}" class="cart__title">{{ item.product.title }}</a>
+                {% unless item.product.has_only_default_variant %}
+                  <div class="cart__variant">{{ item.variant.title }}</div>
+                {% endunless %}
               </div>
-              <p class="cart__subtotal">{{ item.line_price | money }}</p>
-              <button type="submit" class="cart__remove" name="updates[{{ item.key }}]" value="0" aria-label="Remove {{ item.title }}">×</button>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
+            </td>
+            <td class="cart__price" data-label="Price">{{ item.price | money }}</td>
+            <td class="cart__qty" data-label="Quantity">
+              <button type="button" class="qty-btn" data-change="-1" aria-label="Decrease quantity">−</button>
+              <label class="visually-hidden" for="updates_{{ item.key }}">Quantity</label>
+              <input id="updates_{{ item.key }}" class="qty" name="updates[{{ item.key }}]" value="{{ item.quantity }}" type="number" min="0">
+              <button type="button" class="qty-btn" data-change="1" aria-label="Increase quantity">+</button>
+            </td>
+            <td class="cart__subtotal" data-label="Subtotal">{{ item.line_price | money }}</td>
+            <td class="cart__remove-cell" data-label="Remove"><button type="submit" class="cart__remove" name="updates[{{ item.key }}]" value="0" aria-label="Remove {{ item.title }}">×</button></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       <div class="cart__summary">
         <div class="cart__note">
           <label for="CartNote">Order note</label>
@@ -75,7 +86,7 @@
       .then(cart=>{
         document.getElementById('CartSubtotal').textContent = Shopify.formatMoney(cart.total_price);
         cart.items.forEach((item, index)=>{
-          const line = document.querySelector(`.cart__item[data-line="${index+1}"] .cart__subtotal`);
+          const line = document.querySelector(`tr[data-line="${index+1}"] .cart__subtotal`);
           if(line) line.textContent = Shopify.formatMoney(item.line_price);
         });
         const countEl = document.querySelector('.ysa-cart-count');

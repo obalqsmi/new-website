@@ -36,8 +36,8 @@
                     {% assign disabled = false %}
                   {% endif %}
                 {% endfor %}
-                <input type="radio" name="options[{{ option.name }}]" value="{{ value }}" id="Option-{{ option.name | handle }}-{{ forloop.index }}" {% if current_variant.options[forloop.parent.index0] == value %}checked{% endif %} {% if disabled %}disabled{% endif %}>
-                <label for="Option-{{ option.name | handle }}-{{ forloop.index }}">{{ value }}</label>
+                <input class="visually-hidden" type="radio" name="options[{{ option.name }}]" value="{{ value }}" id="Option-{{ option.name | handle }}-{{ forloop.index }}" {% if current_variant.options[forloop.parent.index0] == value %}checked{% endif %} {% if disabled %}disabled{% endif %}>
+                <label class="option-pill" for="Option-{{ option.name | handle }}-{{ forloop.index }}">{{ value }}</label>
               {% endfor %}
             </fieldset>
           {% endfor %}
@@ -45,9 +45,9 @@
         <label for="Quantity-{{ product.id }}" class="visually-hidden">Quantity</label>
         <input type="number" id="Quantity-{{ product.id }}" name="quantity" value="1" min="1" class="product__qty">
         <div class="product__buttons">
-          <button type="submit" class="btn">Add to Cart</button>
-          <button type="submit" name="checkout" class="btn btn--secondary">Buy Now</button>
+          <button type="submit" class="btn btn--primary">Add to Cart</button>
         </div>
+        {% render 'payment-icons', classes: 'justify-content-start' %}
       </form>
       <div class="product__badges" aria-label="Trust badges">
         <img src="/badges/secure.svg" alt="Secure checkout">
@@ -66,17 +66,11 @@
     <div id="panel-faq" role="tabpanel" aria-labelledby="tab-faq" hidden>{{ product.metafields.custom.faq }}</div>
   </div>
 
-  <div class="product__sticky" data-sticky>
-    <span class="product__sticky-title">{{ product.title }}</span>
-    <span class="product__sticky-price" id="StickyPrice">{{ current_variant.price | money }}</span>
-    <button form="product-form-{{ product.id }}" type="submit" class="btn btn--full">Add to Cart</button>
-  </div>
 </section>
 <script>
   const productData = {{ product | json }};
   const form = document.getElementById('product-form-{{ product.id }}');
   const priceEl = document.getElementById('ProductPrice');
-  const stickyPrice = document.getElementById('StickyPrice');
   const variantIdInput = document.getElementById('VariantId');
   const mainImage = document.getElementById('ProductMainImage');
   const radios = form.querySelectorAll('input[type="radio"]');
@@ -90,7 +84,6 @@
     if (!variant) return;
     variantIdInput.value = variant.id;
     priceEl.textContent = Shopify.formatMoney(variant.price);
-    stickyPrice.textContent = Shopify.formatMoney(variant.price);
     if (variant.featured_media) {
       mainImage.src = variant.featured_media.src;
       mainImage.alt = variant.featured_media.alt;

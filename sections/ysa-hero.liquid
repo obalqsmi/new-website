@@ -523,9 +523,9 @@
         root.addEventListener('pointerleave',()=>{active=false;symbol.style.opacity=0;});
         root.addEventListener('pointerenter',()=>{active=true;symbol.style.opacity=1;});
       if(canvas && root){
-        const ctx = canvas.getContext('2d'); let w,h,fontSize,columns,drops,lastTime=0; const speedFactor=.95;
+        const ctx = canvas.getContext('2d'); let w,h,fontSize,columns,drops,lastTime=0; const speedFactor=.85;
         function sizeCanvas(){ const dpr=Math.max(1,window.devicePixelRatio||1); w=window.innerWidth; h=root.scrollHeight; canvas.width=w*dpr; canvas.height=h*dpr; canvas.style.width=w+'px'; canvas.style.height=h+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); fontSize=Math.max(12,Math.floor(w/90)); columns=Math.ceil(w/fontSize); drops=Array.from({length:columns},()=>Math.floor(Math.random()*h/fontSize)); ctx.font=fontSize+"px Orbitron, monospace"; }
-        function draw(ts){ const interval=1000*(1-speedFactor); if(ts-lastTime>interval){ ctx.fillStyle="rgba(5,8,22,.18)"; ctx.fillRect(0,0,w,h); for(let i=0;i<columns;i++){ const char=Math.random()>.5?'1':'0'; const x=i*fontSize; const y=drops[i]*fontSize; ctx.fillStyle="rgba(79,220,255,.9)"; ctx.fillText(char,x,y); if(y>h&&Math.random()>.975) drops[i]=0; drops[i]+=1; } lastTime=ts; } requestAnimationFrame(draw); }
+        function draw(ts){ const interval=1000*(1-speedFactor); if(ts-lastTime>interval){ ctx.fillStyle="rgba(5,8,22,.18)"; ctx.fillRect(0,0,w,h); for(let i=0;i<columns;i++){ const char=Math.random()>.5?'1':'0'; const x=i*fontSize; const y=drops[i]*fontSize; ctx.fillStyle="rgba(79,220,255,.9)"; ctx.fillText(char,x,y); if(y>h&&Math.random()>.975) drops[i]=0; drops[i]+=0.5; } lastTime=ts; } requestAnimationFrame(draw); }
         sizeCanvas(); requestAnimationFrame(draw); window.addEventListener('resize', sizeCanvas);
       }
       // relative time + profanity mask
