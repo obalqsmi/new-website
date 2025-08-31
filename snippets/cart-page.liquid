@@ -24,11 +24,13 @@
               {% endunless %}
               <p class="cart__price">{{ item.price | money }}</p>
               <div class="cart__qty">
+                <button type="button" class="qty-btn" data-change="-1" aria-label="Decrease quantity">−</button>
                 <label class="visually-hidden" for="updates_{{ item.key }}">Quantity</label>
                 <input id="updates_{{ item.key }}" class="qty" name="updates[{{ item.key }}]" value="{{ item.quantity }}" type="number" min="0">
+                <button type="button" class="qty-btn" data-change="1" aria-label="Increase quantity">+</button>
               </div>
               <p class="cart__subtotal">{{ item.line_price | money }}</p>
-              <a href="/cart/change?line={{ forloop.index }}&quantity=0" class="cart__remove" aria-label="Remove {{ item.title }}">×</a>
+              <button type="submit" class="cart__remove" name="updates[{{ item.key }}]" value="0" aria-label="Remove {{ item.title }}">×</button>
             </div>
           </li>
         {% endfor %}
@@ -47,7 +49,8 @@
         <p class="cart__subtotal-line">Subtotal <span id="CartSubtotal">{{ cart.total_price | money }}</span></p>
         <p class="cart__shipping">Taxes and shipping calculated at checkout.</p>
         <button type="submit" name="update" class="btn">Update Cart</button>
-        <button type="submit" name="checkout" class="btn btn--primary">Proceed to Checkout</button>
+        <a href="/" class="btn btn--secondary">Continue Shopping</a>
+        <button type="submit" name="checkout" class="btn btn--primary btn--full">Proceed to Checkout</button>
       </div>
     </form>
   {% endif %}
@@ -56,6 +59,14 @@
 (function(){
   const form = document.querySelector('.cart__form');
   if(!form) return;
+  form.addEventListener('click', function(e){
+    if(!e.target.classList.contains('qty-btn')) return;
+    const input = e.target.parentElement.querySelector('.qty');
+    const change = parseInt(e.target.dataset.change, 10);
+    const newVal = Math.max(0, parseInt(input.value, 10) + change);
+    input.value = newVal;
+    input.dispatchEvent(new Event('change'));
+  });
   form.addEventListener('change', function(e){
     if(!e.target.classList.contains('qty')) return;
     const body = new FormData(form);
@@ -63,6 +74,10 @@
       .then(r=>r.json())
       .then(cart=>{
         document.getElementById('CartSubtotal').textContent = Shopify.formatMoney(cart.total_price);
+        cart.items.forEach((item, index)=>{
+          const line = document.querySelector(`.cart__item[data-line="${index+1}"] .cart__subtotal`);
+          if(line) line.textContent = Shopify.formatMoney(item.line_price);
+        });
         const countEl = document.querySelector('.ysa-cart-count');
         if(countEl) countEl.textContent = cart.item_count;
       });
